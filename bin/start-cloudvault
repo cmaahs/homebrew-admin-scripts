@@ -1,0 +1,84 @@
+#!/bin/bash
+
+export VAULT_ADDR=http://127.0.0.1:8200/
+export VAULT_FORMAT=json
+CONTAINER_NAME=splice_vault
+
+if ! [ -x "$(command -v ssh-vault)" ]; then
+  echo 'Error: ssh-vault is not installed, please use "brew install ssh-vault"' >&2
+  exit 1
+fi
+
+if ! [ -x "$(command -v ssh-keygen)" ]; then
+  echo 'Error: ssh-keygen is not installed, though it should be, please fix manually"' >&2
+  exit 1
+fi
+
+if [[ ! -e ~/.ssh-vault ]]; then
+    mkdir ~/.ssh-vault
+elif [[ ! -d $dir ]]; then
+    echo "~/.ssh-vault already exists but is not a directory" 1>&2
+fi
+
+if [ ! -e ~/.ssh/vault-lock ]
+then
+  ssh-keygen -f ~/.ssh/vault-lock -m PEM -t rsa -b 4096 -C "vaultlock" -N ''
+fi
+
+if [ ! "$(docker ps -q -f name=${CONTAINER_NAME})" ]; then
+    if [ "$(docker ps -aq -f status=exited -f name=${CONTAINER_NAME})" ]; then
+        # cleanup
+        docker rm ${CONTAINER_NAME}
+    fi
+    # run your container
+    docker run -d --name ${CONTAINER_NAME} --cap-add=IPC_LOCK -p 8200:8200 -v splice_vault_logs:/vault/logs -v splice_vault_config:/vault/config -v splice_vault_file:/vault/file -e 'VAULT_LOCAL_CONFIG={"listener": [{"tcp":{"address": "0.0.0.0:8200","tls_disable": 1}}],"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}' vault server
+    echo "waiting for container to initialize..."
+    sleep 10s
+fi
+
+VAULT_INITIALIZED=$(vault status -format=json | jq '.initialized')
+if [ "${VAULT_INITIALIZED}" == "false" ]; then
+  echo "Need to initialize"
+  INIT_DATA=$(vault operator init)
+  ROOT_KEY=$(echo ${INIT_DATA} | jq -r '.root_token')
+  FIRST_KEY=$(echo ${INIT_DATA} | jq -r '.unseal_keys_hex[0]')
+  SECOND_KEY=$(echo ${INIT_DATA} | jq -r '.unseal_keys_hex[1]')
+  THIRD_KEY=$(echo ${INIT_DATA} | jq -r '.unseal_keys_hex[2]')
+  FOURTH_KEY=$(echo ${INIT_DATA} | jq -r '.unseal_keys_hex[3]')
+  FIFTH_KEY=$(echo ${INIT_DATA} | jq -r '.unseal_keys_hex[4]')
+
+  echo "You might want to save these keys somewhere safe..."
+  echo "Root Token: ${ROOT_KEY}"
+  echo "Unseal Key 1: ${FIRST_KEY}"
+  echo "Unseal Key 2: ${SECOND_KEY}"
+  echo "Unseal Key 3: ${THIRD_KEY}"
+  echo "Unseal Key 4: ${FOURTH_KEY}"
+  echo "Unseal Key 5: ${FIFTH_KEY}"
+
+  echo ${ROOT_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_root.sshv
+  echo ${FIRST_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_first.sshv
+  echo ${SECOND_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_second.sshv
+  echo ${THIRD_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_third.sshv
+  echo ${FOURTH_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_fourth.sshv
+  echo ${FIFTH_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_fifth.sshv
+  echo ${INIT_DATA} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_init.sshv
+
+  echo ${ROOT_KEY} > ~/.vault-token
+  chmod 600 ~/.vault-token
+  vault operator unseal ${FIRST_KEY}
+  vault operator unseal ${SECOND_KEY}
+  vault operator unseal ${THIRD_KEY}
+  vault secrets enable -path=secret/ kv
+else
+  VAULT_SEALED=$(vault status -format=json | jq '.sealed')
+  if [ "${VAULT_SEALED}" == "true" ]; then
+    echo "Need to unseal"
+    FIRST_KEY=$(ssh-vault -k ~/.ssh/vault-lock view ~/.ssh-vault/vault_first.sshv)
+    SECOND_KEY=$(ssh-vault -k ~/.ssh/vault-lock view ~/.ssh-vault/vault_second.sshv)
+    THIRD_KEY=$(ssh-vault -k ~/.ssh/vault-lock view ~/.ssh-vault/vault_third.sshv)
+    vault operator unseal ${FIRST_KEY}
+    vault operator unseal ${SECOND_KEY}
+    vault operator unseal ${THIRD_KEY}
+  fi
+fi
+

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v curl)" ]; then
+  echo 'Error: curl is not installed, please use "brew install curl"' >&2
+  exit 1
+fi
+if ! [ -x "$(command -v vault)" ]; then
+  echo 'Error: curl is not installed, please use "brew install vault"' >&2
+  exit 1
+fi
+
+REPO_NAME=$1
+REPO_TAG=$2
+
+VAULT_SEALED=$(vault status -format=json | jq '.sealed')
+if [ "${VAULT_SEALED}" == "true" ]; then
+  echo 'Error: the vault is sealed, please unseal it before continuing' >&2
+fi
+
+USER_NAME=$(vault kv get -field=username -format=table secret/docker_creds)
+PASS_WORD=$(vault kv get -field=password -format=table secret/docker_creds)
+
+TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${USER_NAME}'", "password": "'${PASS_WORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+EXISTS=$(curl -s -H "Authorization: JWT ${TOKEN}" "https://hub.docker.com/v2/repositories/${REPO_NAME}/tags/?page_size=10000" | jq -r "[.results | .[] | .name == \"${REPO_TAG}\"] | any")
+if [ "${EXISTS}" == "true" ]; then
+  echo "${1}:${2} -> EXISTS <-"
+else
+  echo "${1}:${2} -> AVAILABLE ->"
+fi
