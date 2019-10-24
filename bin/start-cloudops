@@ -1,0 +1,3 @@
+VAULT_DOCKER_IP=$(docker inspect splice_vault | jq -r '.[0].NetworkSettings.IPAddress')
+docker run -d --cap-add NET_ADMIN --hostname ops_cloudtools --device /dev/net/tun -p 9022:22 -e USER_NAME=`whoami` -e VAULT_DOCKER_IP=`echo "${VAULT_DOCKER_IP}"` -v `echo "${HOME}/src"`:/home/src -v splice_home:/home -v splice_letsencrypt:/etc/letsencrypt --name splice_cloud_tools splicemachine/ops_cloudtools
+

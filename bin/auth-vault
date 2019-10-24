@@ -1,0 +1,46 @@
+#!/bin/bash
+
+FOUND_PROFILE=0
+FOUND_EXPIRATION=0
+while read LINE
+do
+  if [ "${LINE}" == "[splice-build]" ]
+  then
+    FOUND_PROFILE=1
+  fi
+  if [ ${FOUND_PROFILE} -eq 1 ]
+  then
+    if [[ ${LINE} == expiration* ]]
+    then
+      FOUND_EXPIRATION=1
+      EXPIRATION_DATE=$(echo ${LINE} | cut -d'=' -f2)
+      NOW_SECONDS=$(gdate +%s)
+      EXPIRATION_SECONDS=$(gdate +%s -d "${EXPIRATION_DATE}")
+      EXPIRES_SECONDS=$(expr ${EXPIRATION_SECONDS} - ${NOW_SECONDS})
+      if [ ${EXPIRES_SECONDS} -gt 0 ]
+      then
+        export AWS_PROFILE=splice-build
+        AUTH_TOKEN=$(vault login -method=aws header_value=vault.build.splicemachine-dev.io role=dev-role-iam | jq -r '.auth.client_token')
+        unset AWS_PROFILE
+        STORED_TOKEN=$(cat ${HOME}/.vault-token)
+        if [ "${AUTH_TOKEN}" != "${STORED_TOKEN}" ]; then
+          echo "Authentication *FAILED*"
+        else
+          echo "Authentication successful"
+          vault kv list secret
+          cp ~/.vault-token ~/.vault-token-build
+        fi
+      else
+        echo "AWS MFA Token HAS already expired"
+      fi
+    fi
+  fi
+done < ${HOME}/.aws/credentials
+if [ ${FOUND_EXPIRATION} -eq 0 ]
+then
+  echo "AWS MFA Token HAS already expired"
+fi
+if [ ${FOUND_PROFILE} -eq 0 ]
+then
+  echo "AWS Credentials profile [splice-build] was not in ~/.aws/credentials file"
+fi
