@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+IP_ADDRESS=$1
+HOST_NAME=$2
+RESOURCE_GROUP="${3:-sm_dev_dns}"
+DNS_ZONE="${4:-dev.splicemachine-dev.io}"
+
+if [[ -z "${IP_ADDRESS}" ]]; then
+  echo "IP_ADDRESS is required."
+  exit 1
+fi
+
+if [[ -z "${HOST_NAME}" ]]; then
+  echo "HOST_NAME is required."
+  exit 1
+fi
+az network dns record-set a create -g ${RESOURCE_GROUP} -z ${DNS_ZONE} -n ${HOST_NAME} --ttl 300
+az network dns record-set a add-record -g ${RESOURCE_GROUP} -z ${DNS_ZONE} -n ${HOST_NAME} -a ${IP_ADDRESS}

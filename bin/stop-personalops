@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker kill cmaahs_tools && \
+docker rm cmaahs_tools
