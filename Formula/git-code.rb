@@ -1,8 +1,8 @@
-class UtilScripts < Formula
+class GitCode < Formula
   desc "git-code utility for searching and cloning company repositories"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.1"
+  version "0.0.2"
 
   if OS.mac?
     def install
