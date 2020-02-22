@@ -1,0 +1,105 @@
+#!/bin/bash
+# This is intended to connect to your current k8s cluster (using the helm client you already have) and determine the 
+# server version that is running, and ensure that you have the version downloaded, and the client version that matches the 
+# server is them symlinked into /usr/local/bin/helm
+#
+# The storage location for the downloaded client version is /usr/local/helm/{version}/
+#
+# There is a chicken and egg problem with the script, it requires that you have a working helm client installed.  Particularly
+# running from /usr/local/bin/helm, which will be removed and replaced with a symlink.
+
+set -o pipefail
+
+readonly program="$(basename "$0")"
+verbose=0
+
+usage() {
+  echo "
+    This script downloads and selects the matching helm client for your attached k8s cluster.
+    usage: $program
+    options:
+      -h, --help                    Show this help.
+  " | sed -E 's/^ {4}//'
+}
+
+# available flags
+while [[ "$1" ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      break
+      ;;
+  esac
+  shift
+done
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+fi
+
+if [ ! -d "/usr/local/helm" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/helm
+  sudo chown ${MY_LOGON}:admin /usr/local/helm
+fi;
+
+if which helm >/dev/null 2>&1; then
+  HELM_CLIENT=$(helm version --template "{{.Client.SemVer}}")
+  HELM_SERVER=$(helm version --template "{{.Server.SemVer}}")
+else
+  HELM_SERVER="v2.15.1"
+  if [ ! -d "/usr/local/helm/${HELM_SERVER}" ]; then
+    mkdir -p "/usr/local/helm/${HELM_SERVER}"
+    wget --quiet -O "/usr/local/helm/helm-${HELM_SERVER}-${TARGET_OS}-amd64.tar.gz" "https://get.helm.sh/helm-${HELM_SERVER}-${TARGET_OS}-amd64.tar.gz"
+    tar -xzvf "/usr/local/helm/helm-${HELM_SERVER}-${TARGET_OS}-amd64.tar.gz" -C "/usr/local/helm/${HELM_SERVER}/"
+    if [ -f "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm" ]; then
+      chmod 775 "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm"
+    fi
+    if [ -f "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller" ]; then
+      chmod 775 "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller"
+    fi
+  fi
+  if [ -f "/usr/local/bin/helm" ]; then
+    rm "/usr/local/bin/helm"
+  fi
+  ln -s "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm" "/usr/local/bin/helm"
+  if [ -f "/usr/local/bin/tiller" ]; then
+    rm "/usr/local/bin/tiller"
+  fi
+  ln -s "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller" "/usr/local/bin/tiller"
+
+  HELM_CLIENT=$(helm version --template "{{.Client.SemVer}}")
+  HELM_SERVER=$(helm version --template "{{.Server.SemVer}}")
+fi
+
+echo ${HELM_CLIENT}
+echo ${HELM_SERVER}
+if [[ ! -z "${HELM_SERVER}" ]]; then
+  if [ ! -d "/usr/local/helm/${HELM_SERVER}" ]; then
+    mkdir -p "/usr/local/helm/${HELM_SERVER}"
+    wget --quiet -O "/usr/local/helm/helm-${HELM_SERVER}-${TARGET_OS}-amd64.tar.gz" "https://get.helm.sh/helm-${HELM_SERVER}-${TARGET_OS}-amd64.tar.gz"
+    tar -xzvf "/usr/local/helm/helm-${HELM_SERVER}-${TARGET_OS}-amd64.tar.gz" -C "/usr/local/helm/${HELM_SERVER}/"
+    if [ -f "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm" ]; then
+      chmod 775 "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm"
+    fi
+    if [ -f "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller" ]; then
+      chmod 775 "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller"
+    fi
+  fi
+  if [ -f "/usr/local/bin/helm" ]; then
+    rm "/usr/local/bin/helm"
+  fi
+  ln -s "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm" "/usr/local/bin/helm"
+  if [ -f "/usr/local/bin/tiller" ]; then
+    rm "/usr/local/bin/tiller"
+  fi
+  ln -s "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller" "/usr/local/bin/tiller"
+fi
+

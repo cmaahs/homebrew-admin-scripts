@@ -1,3 +1,158 @@
-VAULT_DOCKER_IP=$(docker inspect splice_vault | jq -r '.[0].NetworkSettings.IPAddress')
-docker run -d --cap-add NET_ADMIN --hostname ops_cloudtools --device /dev/net/tun -p 9022:22 -e USER_NAME=`whoami` -e VAULT_DOCKER_IP=`echo "${VAULT_DOCKER_IP}"` -v `echo "${HOME}/src"`:/home/src -v splice_home:/home -v splice_letsencrypt:/etc/letsencrypt --name splice_cloud_tools splicemachine/ops_cloudtools
+#!/usr/bin/env bash
 
+function usage()
+{
+    echo "Help:"
+    echo " -h          Help"
+    echo " -p {PORT}   Port number to map port 22"
+    echo " -i          Initialize the running container for the user account."
+    echo " -b          Use bash instead of zsh"
+    echo " -n          No Persistent Storage for /home and /home/src"
+    echo " -l          Mount a Let's Encrypt volume at /etc/letsencrypt"
+    echo " -d          Mount the host /var/run/docker.sock"
+    echo " -v          Gather and set the Vault container IP address (experiment)"
+    echo "   * -l must come last in parameter order, if -n is used."
+}
+
+function get-latest-file()
+{
+    PEMLIST=$(mdfind ${1} | grep "${1}$")
+    LATEST_FILE=""
+    NEWEST_CREATE=0
+    for p in $PEMLIST; do
+    CREATE_TS=$(stat -f "%c" $p)
+    if [[ ${CREATE_TS} -gt ${NEWEST_CREATE} ]]; then
+        NEWEST_CREATE=${CREATE_TS}
+        LATEST_FILE=$p
+    fi
+    done
+
+    echo ${LATEST_FILE}
+}
+
+REQUIREMENTS_MET=true
+if ! which ssh-keyscan > /dev/null; then
+    echo "Missing: ssh-keyscan"
+    REQUIREMENTS_MET=false
+fi
+
+if [[ ${REQUIREMENTS_MET} == "false" ]]; then
+    exit 1
+fi
+
+PORT=9022
+ENV_OPTIONS=""
+VOL_OPTIONS=""
+TAG=0.0.13
+if [ -d ~/src ]; then
+    VOL_OPTIONS="-v $(echo "${HOME}/src"):/home/src -v splice_home:/home"
+else
+    VOL_OPTIONS="-v splice_home:/home"
+fi
+INITIALIZE=false
+USER_SHELL="zsh"
+while getopts ":hp:vilnbd" OPTION; do
+    case $OPTION in
+    b)
+        USER_SHELL="bash"
+        ;;
+    l)
+        VOL_OPTIONS="${VOL_OPTIONS} -v splice_letsencrypt:/etc/letsencrypt"
+        ;;
+    d)
+        VOL_OPTIONS="${VOL_OPTIONS} -v /var/run/docker.sock:/run/docker.sock"
+        ;;
+    v)
+        VAULT_DOCKER_IP=$(docker inspect splice_vault | jq -r '.[0].NetworkSettings.IPAddress')
+        ENV_OPTIONS="${ENV_OPTIONS} -e VAULT_DOCKER_IP=$(echo \"${VAULT_DOCKER_IP}\") "
+        ;;
+    n)
+        VOL_OPTIONS=""
+        ;;
+    i)
+        INITIALIZE=true
+        ENV_OPTIONS="${ENV_OPTIONS} -e HOME_INIT=true"
+        ;;
+    p)
+        PORT=$OPTARG
+        ;;
+    h)
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+# echo "VOL: ${VOL_OPTIONS}"
+# echo "ENV: ${ENV_OPTIONS}"
+
+CLOUD_TOOLS=$(docker ps --format 'table {{.Names}}' | grep splice_cloud_tools)
+if [[ -z ${CLOUD_TOOLS} ]]; then
+    #docker run -d --cap-add NET_ADMIN --hostname ops_cloudtools --device /dev/net/tun -p ${PORT}:22 ${ENV_OPTIONS} -e USER_NAME=$(whoami) -e AUTH_KEY=$(cat ~/.ssh/id.rsa.pub) -e VAULT_DOCKER_IP=`echo "${VAULT_DOCKER_IP}"` -v `echo "${HOME}/src"`:/home/src -v splice_home:/home -v splice_letsencrypt:/etc/letsencrypt --name splice_cloud_tools splicemachine/ops_cloudtools
+    #docker run -d --cap-add NET_ADMIN --hostname ops_cloudtools --device /dev/net/tun -p ${PORT}:22 ${ENV_OPTIONS} -e USER_NAME=$(whoami) -e AUTH_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwGgz9pGGOya2PTfla/551bqoBrBapSMiP9rK+3epwUerhRKK7ITEwDdMF2rgC52H+YdXy4QMyvkba+0Qc4S0nHDRYP1mGeJ7ynnX/WBX4QSatUu2aY7ieLpXSz8TsAODBZImJYY/ZFD63k7h4ng9wbzQb17gkxhCK0JbXh+NcS4Ovfv6dHdQusxLXWVZB/hgEMBLbkCNjpu3293xX57x0QsVkiixKAXXECX8XNkngoLz9lizKVtEqHUNbZzMEKw4NS5SgTsY3ZeZnQLDmCdKX01HfUiZAyJouxGav9laBWfUIW2ILPXKhlzIGlZ+Z8h1+7Q9uV8cctiW1lkLxydZ6+qzeNCXwRxQ/m21Rfn65vU6jSBjW21wsTxKJMeBCft0Lt6axjA4IkLvBMC3eqWaA7/Kfvv1gK0jm2I0ghKPLUotjdp8yysLZZp0z2Oab4vRCXGYGEwO41voxyhxfH5eowEeHOJjGE3+MGtbUIc1HSN2X7tTamd5NyLGEpeBm4iQQC9yTxg5jWhbXopNAr27KaXkSuQWLwe+viPqBvvCFPmC2GE0J3LCK2ykppX5oXpsBKy7kECX4W2N5N1hisZWOgkBq/TSraJzYpz+uDZ89V2gWNvX6AHkSDOpeGi82W+iMD3Y+Q4LNzhckAAxyZyGY7d0eKy12k6Sbp8Te1AhDCQ== cmaahs@splicemachine.com" --name splice_cloud_tools splicemachine/ops_cloudtools:${TAG}
+    docker run -d --cap-add NET_ADMIN --hostname ops_cloudtools --device /dev/net/tun -p ${PORT}:22 ${ENV_OPTIONS} -e USER_NAME=$(whoami) -e USER_SHELL="${USER_SHELL}" -e AUTH_KEY="$(cat ~/.ssh/id_rsa.pub | base64)" ${VOL_OPTIONS} --name splice_cloud_tools splicemachine/ops_cloudtools:${TAG}
+fi
+
+# Post Startup Configuration
+CLOUD_TOOLS=$(docker ps --format 'table {{.Names}}' | grep splice_cloud_tools)
+if [[ "${CLOUD_TOOLS}" == "splice_cloud_tools" ]]; then
+    echo -ne "Waiting for container to fully initialize..."
+    while ! ssh-keyscan -p ${PORT} -t rsa localhost 2> /dev/null | grep ssh-rsa > /dev/null; do
+        echo -ne "."
+        sleep 5
+    done
+    echo " complete..."
+fi
+
+if [[ "${INITIALIZE}" == "true" ]]; then
+    if [ -f ~/.ssh/id_rsa ]; then
+        scp -q -P ${PORT} ~/.ssh/id_rsa localhost:~/.ssh/id_rsa
+        ssh -q -p ${PORT} localhost 'chmod 600 ~/.ssh/id_rsa'
+    fi
+    if [ -f ~/.ssh/id_rsa.pub ]; then
+        scp -q -P ${PORT} ~/.ssh/id_rsa.pub localhost:~/.ssh/id_rsa.pub
+        ssh -q -p ${PORT} localhost 'chmod 600 ~/.ssh/id_rsa.pub'
+    fi
+    if [ -f ~/.aws/config ]; then
+        scp -q -P ${PORT} ~/.aws/config localhost:~/.aws/config
+    fi
+    if [ -f ~/.aws/credentials ]; then
+        scp -q -P ${PORT} ~/.aws/credentials localhost:~/.aws/credentials
+        ssh -q -p ${PORT} localhost 'chmod 600 ~/.aws/credentials'
+    fi
+    if [ -f ~/.azure/credentials ]; then
+        scp -q -P ${PORT} ~/.azure/credentials localhost:~/.azure/credentials
+        ssh -q -p ${PORT} localhost 'chmod 600 ~/.azure/credentials'
+    fi
+    PEM_FILE=$(get-latest-file splicemachinedev.pem)
+    if [[ ! -z ${PEM_FILE} ]]; then
+        scp -q -P ${PORT} ${PEM_FILE} localhost:~/.ssh/$(basename ${PEM_FILE})
+        ssh -q -p ${PORT} localhost "chmod 600 ~/.ssh/$(basename ${PEM_FILE})"
+    fi
+    PEM_FILE=$(get-latest-file splice-dbaas-production.pem)
+    if [[ ! -z ${PEM_FILE} ]]; then
+        scp -q -P ${PORT} ${PEM_FILE} localhost:~/.ssh/$(basename ${PEM_FILE})
+        ssh -q -p ${PORT} localhost "chmod 600 ~/.ssh/$(basename ${PEM_FILE})"
+    fi
+    PEM_FILE=$(get-latest-file splice-dcos.pem)
+    if [[ ! -z ${PEM_FILE} ]]; then
+        scp -q -P ${PORT} ${PEM_FILE} localhost:~/.ssh/$(basename ${PEM_FILE})
+        ssh -q -p ${PORT} localhost "chmod 600 ~/.ssh/$(basename ${PEM_FILE})"
+    fi
+    PEM_FILE=$(get-latest-file vsplice-dev.pem)
+    if [[ ! -z ${PEM_FILE} ]]; then
+        scp -q -P ${PORT} ${PEM_FILE} localhost:~/.ssh/$(basename ${PEM_FILE})
+        ssh -q -p ${PORT} localhost "chmod 600 ~/.ssh/$(basename ${PEM_FILE})"
+    fi
+    PEM_FILE=$(get-latest-file splice_trials.pem)
+    if [[ ! -z ${PEM_FILE} ]]; then
+        scp -q -P ${PORT} ${PEM_FILE} localhost:~/.ssh/$(basename ${PEM_FILE})
+        ssh -q -p ${PORT} localhost "chmod 600 ~/.ssh/$(basename ${PEM_FILE})"
+    fi
+
+    if [ -e ~/.ssh/config ]
+    then
+        SSH_CONFIG=$(sed '/ [Uu]se[Kk]ey[Cc]hain/d' ~/.ssh/config | base64)
+        ssh -q -p ${PORT} localhost "echo \"${SSH_CONFIG}\" | base64 -d > ~/.ssh/config"
+    fi
+fi

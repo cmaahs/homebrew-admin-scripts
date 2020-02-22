@@ -4,34 +4,13 @@ export VAULT_ADDR=http://127.0.0.1:8200/
 export VAULT_FORMAT=json
 CONTAINER_NAME=splice_vault
 
-if ! [ -x "$(command -v ssh-vault)" ]; then
-  echo 'Error: ssh-vault is not installed, please use "brew install ssh-vault"' >&2
-  exit 1
-fi
-
-if ! [ -x "$(command -v ssh-keygen)" ]; then
-  echo 'Error: ssh-keygen is not installed, though it should be, please fix manually"' >&2
-  exit 1
-fi
-
-if [[ ! -e ~/.ssh-vault ]]; then
-    mkdir ~/.ssh-vault
-elif [[ ! -d $dir ]]; then
-    echo "~/.ssh-vault already exists but is not a directory" 1>&2
-fi
-
-if [ ! -e ~/.ssh/vault-lock ]
-then
-  ssh-keygen -f ~/.ssh/vault-lock -m PEM -t rsa -b 4096 -C "vaultlock" -N ''
-fi
-
 if [ ! "$(docker ps -q -f name=${CONTAINER_NAME})" ]; then
     if [ "$(docker ps -aq -f status=exited -f name=${CONTAINER_NAME})" ]; then
         # cleanup
         docker rm ${CONTAINER_NAME}
     fi
     # run your container
-    docker run -d --name ${CONTAINER_NAME} --cap-add=IPC_LOCK -p 8200:8200 -v splice_vault_logs:/vault/logs -v splice_vault_config:/vault/config -v splice_vault_file:/vault/file -e 'VAULT_LOCAL_CONFIG={"listener": [{"tcp":{"address": "0.0.0.0:8200","tls_disable": 1}}],"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}' vault server
+    docker run -d --name ${CONTAINER_NAME} --cap-add=IPC_LOCK -p 8200:8200 -v splice_vault_plugins:/vault/plugins -v splice_vault_logs:/vault/logs -v splice_vault_config:/vault/config -v splice_vault_file:/vault/file -e 'VAULT_LOCAL_CONFIG={"api_addr": "http://127.0.0.1:8200","plugin_directory": "/vault/plugins","listener": [{"tcp":{"address": "0.0.0.0:8200","tls_disable": 1}}],"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}' vault server -log-level=trace
     echo "waiting for container to initialize..."
     sleep 10s
 fi
@@ -55,13 +34,13 @@ if [ "${VAULT_INITIALIZED}" == "false" ]; then
   echo "Unseal Key 4: ${FOURTH_KEY}"
   echo "Unseal Key 5: ${FIFTH_KEY}"
 
-  echo ${ROOT_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_root.sshv
-  echo ${FIRST_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_first.sshv
-  echo ${SECOND_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_second.sshv
-  echo ${THIRD_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_third.sshv
-  echo ${FOURTH_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_fourth.sshv
-  echo ${FIFTH_KEY} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_fifth.sshv
-  echo ${INIT_DATA} | ssh-vault -k ~/.ssh/vault-lock.pub create ~/.ssh-vault/vault_init.sshv
+  ACCOUNT=$(whoami)
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_root" -w "${ROOT_KEY}" automation.keychain-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_first" -w "${FIRST_KEY}" automation.keychain-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_second" -w "${SECOND_KEY}" automation.keychain-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_third" -w "${THIRD_KEY}" automation.keychain-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_fourth" -w "${FOURTH_KEY}" automation.keychain-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_fifth" -w "${FIFTH_KEY}" automation.keychain-db  
 
   echo ${ROOT_KEY} > ~/.vault-token
   chmod 600 ~/.vault-token
@@ -73,9 +52,9 @@ else
   VAULT_SEALED=$(vault status -format=json | jq '.sealed')
   if [ "${VAULT_SEALED}" == "true" ]; then
     echo "Need to unseal"
-    FIRST_KEY=$(ssh-vault -k ~/.ssh/vault-lock view ~/.ssh-vault/vault_first.sshv)
-    SECOND_KEY=$(ssh-vault -k ~/.ssh/vault-lock view ~/.ssh-vault/vault_second.sshv)
-    THIRD_KEY=$(ssh-vault -k ~/.ssh/vault-lock view ~/.ssh-vault/vault_third.sshv)
+    FIRST_KEY=$(security find-generic-password -l "unseal_first" -w automation.keychain-db)
+    SECOND_KEY=$(security find-generic-password -l "unseal_second" -w automation.keychain-db)
+    THIRD_KEY=$(security find-generic-password -l "unseal_third" -w automation.keychain-db)
     vault operator unseal ${FIRST_KEY}
     vault operator unseal ${SECOND_KEY}
     vault operator unseal ${THIRD_KEY}
