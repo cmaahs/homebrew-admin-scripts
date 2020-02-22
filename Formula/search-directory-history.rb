@@ -1,4 +1,4 @@
-class UtilScripts < Formula
+class SearchDirectoryHistory < Formula
   desc "search-directory-history utility for searching Oh-My-Zsh plugin directory history files""
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
