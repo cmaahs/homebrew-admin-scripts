@@ -20,15 +20,22 @@ if [[ -z $1 ]]; then
         echo "{"
 	exit
 fi
-OTPKEYLOC=$(cat ${HOME}/.otpkeys | jq -r ".${1}.key")
-OTPVAULT=$(cat ${HOME}/.otpkeys | jq -r ".${1}.vault")
-LASTOTP=$(cat ${HOME}/.otpkeys | jq -r ".${1}.lastotp")
+
+if [[ -z $2 ]]; then
+  HOMELOC=${HOME}
+else
+  HOMELOC=$2
+fi
+
+OTPKEYLOC=$(cat ${HOMELOC}/.otpkeys | jq -r ".${1}.key")
+OTPVAULT=$(cat ${HOMELOC}/.otpkeys | jq -r ".${1}.vault")
+LASTOTP=$(cat ${HOMELOC}/.otpkeys | jq -r ".${1}.lastotp")
 
 if [[ -z "${OTPKEYLOC}" ]] || [[ "${OTPKEYLOC}" == "null" ]]; then
   echo "$(basename $0): Bad Service Name '$1'"
   $0
   echo "Current Services Defined:"
-  cat ${HOME}/.otpkeys | jq -r '. | to_entries[].key'
+  cat ${HOMELOC}/.otpkeys | jq -r '. | to_entries[].key'
   exit 1
 fi
 
@@ -62,7 +69,7 @@ while [[ "${OTP}" == "${LASTOTP}" ]]; do
   OTP=$(oathtool --totp -b "$OTPKEY")
 done
 echo "${OTP}"
-cat ${HOME}/.otpkeys | jq ".${1}.lastotp |= \"${OTP}\"" | sponge ${HOME}/.otpkeys
+cat ${HOMELOC}/.otpkeys | jq ".${1}.lastotp |= \"${OTP}\"" | sponge ${HOMELOC}/.otpkeys
 if [[ `uname` = "Darwin" ]]; then
 	oathtool --totp -b "$OTPKEY" | pbcopy
 fi
