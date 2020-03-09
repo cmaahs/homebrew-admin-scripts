@@ -1,0 +1,101 @@
+#!/bin/bash
+
+usage() { echo "Usage: $0 [-e <aks-dev3|eks-dev3>]" 1>&2; exit 1; }
+
+aws_urls () {
+	ingress_domain="${1}.eks.splicemachine-dev.io"
+	ingress_admin_domain="${1}admin.eks.splicemachine-dev.io"
+	ingress_hbase="${1}admin-hbase.eks.splicemachine-dev.io"
+	ingress_hdfs="${1}admin-hdfs.eks.splicemachine-dev.io"
+	ingress_dashboard="${1}-dashboard.eks.splicemachine-dev.io"
+
+	echo "Your urls are:"
+	echo "Dashboard:            https://$ingress_dashboard/"
+	echo "Kibana:               https://$ingress_admin_domain/kibana"
+	echo "Chronograf:           https://$ingress_admin_domain/chronograf"
+	echo "Oauth:                https://$ingress_admin_domain/oauth2"
+	echo "Cloud Manager Admin:  https://$ingress_admin_domain"
+	echo "Cloud Manager:        https://$ingress_domain"
+}
+
+azure_urls () {
+	ingress_domain="${1}.dev.splicemachine-dev.io"
+	ingress_admin_domain="${1}admin.dev.splicemachine-dev.io"
+	ingress_hbase="${1}admin-hbase.dev.splicemachine-dev.io"
+	ingress_hdfs="${1}admin-hdfs.dev.splicemachine-dev.io"
+	ingress_dashboard="${1}-dashboard.dev.splicemachine-dev.io"
+	
+	echo "Your urls are:"
+	echo "Dashboard:            https://${ingress_dashboard}/"
+	echo "Kibana:               https://${ingress_admin_domain}/kibana"
+	echo "Chronograf:           https://${ingress_admin_domain}/chronograf"
+	echo "Oauth:                https://${ingress_admin_domain}/oauth2"
+	echo "Cloud Manager Admin:  https://${ingress_admin_domain}"
+	echo "Cloud Manager:        https://${ingress_domain}"
+}
+
+splicecore_urls() {
+
+    local cluster_name=$1
+    local dns_domain=$2
+    ingress_domain="${cluster_name}.${dns_domain}"
+    ingress_admin_domain="${cluster_name}admin.${dns_domain}"
+    ingress_hbase="${cluster_name}admin-hbase.${dns_domain}"
+    ingress_hdfs="${cluster_name}admin-hdfs.${dns_domain}"
+    ingress_dashboard="${cluster_name}-dashboard.${dns_domain}"
+	
+    echo "Your urls are:"
+    echo "Dashboard:            https://${ingress_dashboard}/"
+    echo "Kibana:               https://${ingress_admin_domain}/kibana"
+    echo "Chronograf:           https://${ingress_admin_domain}/chronograf"
+    echo "Oauth:                https://${ingress_admin_domain}/oauth2"
+    echo "Cloud Manager Admin:  https://${ingress_admin_domain}"
+    echo "Cloud Manager:        https://${ingress_domain}"
+}
+
+
+splicedb_urls () {
+    local cluster_name=$1
+    local dns_domain=$2
+    SPLICEDB_CLUSTERS=($(kubectl get splicedbcluster -n default --no-headers | awk '{ print $1 }'))
+    for DB in $SPLICEDB_CLUSTERS; do
+        NS=$(kubectl get splicedbcluster $DB -o json | jq -r '.spec.global.dnsPrefix')
+        echo "Splice DB JDBC:       ${NS}-${cluster_name}.${dns_domain}"
+    done
+}
+
+while getopts ":e:" o; do
+	case "${o}" in
+		e)
+			e=${OPTARG}
+			;;
+		*)
+			usage
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
+if [[ -z "${e}" ]]; then
+	usage
+fi
+
+initial="$(echo $e | head -c 1)"
+
+case $initial in
+
+	e)
+		splicecore_urls $e "eks.splicemachine-dev.io"
+                splicedb_urls $e "eks.splicemachine-dev.io"
+		;;
+
+	a)
+		splicecore_urls $e "dev.splicemachine-dev.io"
+                splicedb_urls $e "dev.splicemachine-dev.io"
+		;;
+
+	*)
+		echo "Unknown Cluster"
+		usage
+		;;
+esac

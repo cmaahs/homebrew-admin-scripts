@@ -15,6 +15,10 @@ Collection of brew installable administrative scripts for making my daily life e
 - "bin/k8s-vault-functions.sh"
 - "bin/k8s_creds_functions.sh"
 - "bin/update-az-dns"
+- "bin/kurls"
+- "bin/otp"
+- "bin/switch_vault.sh"
+- "bin/vault-token-to-clipboard"
 
 ### Formula docker-ops
 
