@@ -30,3 +30,23 @@ function get-aws-creds {
     fi
   fi
 }
+
+
+function get-gcp-creds {
+  local SPLICE_ENV=${1-gke-dev1}
+
+  local CLUSTER=$(gcloud container clusters list --format='value(name)' --filter="name=${SPLICE_ENV}")
+  if [[ "${CLUSTER}" == "${SPLICE_ENV}" ]]; then
+    if which kubectl >/dev/null 2>&1; then
+      LOCATION=$(gcloud container clusters list --format='value(location)' --filter="name=${SPLICE_ENV}")
+      local KUBECONF=~/.kube/config.${SPLICE_ENV}
+      KUBECONFIG="${KUBECONF}"
+      export KUBECONFIG
+      gcloud container clusters get-credentials ${SPLICE_ENV} --region ${LOCATION}
+      sed -i "/    user:/{N;s/name: .*$/name: ${SPLICE_ENV}/}" ${KUBECONF}
+      sed -i "/current-context:/c current-context: gke-dev3" ${KUBECONF}
+    else
+      echo "Failed"
+    fi
+  fi
+}

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+WHICH_VAULT=build
+VAULT_TOKEN=$(security find-generic-password -l "${WHICH_VAULT}_vault_token" -w automation.keychain-db)
+echo ${VAULT_TOKEN}
+echo ${VAULT_TOKEN} | pbcopy
