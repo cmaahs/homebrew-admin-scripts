@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.3"
+  version "0.0.4"
 
   def install
     bin.install "bin/auth-vault"
@@ -17,6 +17,7 @@ class UtilScripts < Formula
     bin.install "bin/update-az-dns"
     bin.install "bin/kurls"
     bin.install "bin/otp"
+    bin.install "bin/otp_basic"
     bin.install "bin/switch_vault.sh"
     if OS.mac?
       def install
@@ -37,6 +38,10 @@ class UtilScripts < Formula
         - get-gcp-creds
       switch_vault.sh contains the following function:
         - switch-vault
+      otp and otp_basic are used with oauth-toolkit
+        - otp uses hasicorp vault or mac os keyring for sensitive data storage
+        - otp_basic stores sensitive data in ~/.otpkeys
+          - if you choose otp_basic, just re-link /usr/local/bin/otp to the otp_basic version.
   EOS
   end
 end

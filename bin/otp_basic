@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# requires 'sponge' from the moreutils package
+# brew install moreutils
+# yum install -y moreutils
+function usage() {
+	echo
+	echo "Usage:"
+	echo "   otp -s -d ~/tmp aws"
+	echo
+	echo " -s : skip the copy to clipboard"
+	echo " -d : directory to find .otpkeys"
+	echo "   switches MUST come before named service"
+	echo
+	echo "Configuration: $HOME/.otpkeys"
+	echo "Format:"
+        echo "{"
+        echo '  "aws": {'
+        echo '    "key": "YOURMFAKEY",'
+        echo '    "lastotp": "661084"'
+        echo '  },'
+        echo "{"
+}
+PBCOPY="true"
+HOMELOC=${HOME}
+while getopts ":shd:" o; do
+    case "${o}" in
+        s)
+            PBCOPY="false"
+            ;;
+        d)
+            HOMELOC=${OPTARG}
+            ;;
+        h)
+            usage
+            exit
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+SERVICE=$*
+if [[ -z ${SERVICE} ]]; then
+  echo "Missing service name"
+  usage
+  exit
+fi
+if [[ ! -f ${HOMELOC}/.otpkeys ]]; then
+  echo "No config file at: ${HOMELOC}/.otpkeys"
+  exit
+fi
+OTPKEY=$(cat ${HOMELOC}/.otpkeys | jq -r ".${SERVICE}.key")
+LASTOTP=$(cat ${HOMELOC}/.otpkeys | jq -r ".${SERVICE}.lastotp")
+if [[ -z "${OTPKEY}" ]] || [[ "${OTPKEY}" == "null" ]]; then
+  echo "$(basename $0): Bad Service Name '${SERVICE}'"
+  echo "Current Services Defined:"
+  cat ${HOMELOC}/.otpkeys | jq -r '. | to_entries[].key'
+  exit 1
+fi
+OTP=$(oathtool --totp -b "$OTPKEY")
+while [[ "${OTP}" == "${LASTOTP}" ]]; do
+  sleep 5
+  OTP=$(oathtool --totp -b "$OTPKEY")
+done
+echo "${OTP}"
+cat ${HOMELOC}/.otpkeys | jq ".${SERVICE}.lastotp |= \"${OTP}\"" | sponge ${HOMELOC}/.otpkeys
+if [[ `uname` = "Darwin" ]] && [[ "${PBCOPY}" == "true" ]]; then
+	oathtool --totp -b "$OTPKEY" | pbcopy
+fi
