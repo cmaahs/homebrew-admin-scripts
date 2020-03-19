@@ -15,7 +15,6 @@ class UtilScripts < Formula
     bin.install "bin/k8s-vault-functions.sh"
     bin.install "bin/k8s_creds_functions.sh"
     bin.install "bin/update-az-dns"
-    bin.install "bin/kurls"
     bin.install "bin/otp"
     bin.install "bin/otp_basic"
     bin.install "bin/switch_vault.sh"
