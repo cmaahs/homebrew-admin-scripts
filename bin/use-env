@@ -1,0 +1,164 @@
+#!/bin/bash
+
+usage() { echo "Usage: $0 [-e <aks-dev3|eks-dev3>]" 1>&2; exit 1; }
+
+while getopts ":e:" o; do
+  case "${o}" in
+    e)
+      ENV=${OPTARG}
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
+IFS='-' read -ra NAME <<< "$ENV"
+ACCOUNT=${NAME[0]}
+CLOUD=${NAME[1]}
+ENVIRONMENT=${NAME[2]}
+
+#
+# TODO: Does this one still work with multiple accounts?
+#
+
+switch_to_azure () {
+  account=${1}
+  cloud=${2}
+  environment=${3}
+  echo "Switching to Azure Cluster: ${account}-${cloud}-${environment}"
+  az aks get-credentials --resource-group ${account}-${cloud}-${environment} --name ${account}-${cloud}-${environment}
+  kubectl config use-context ${account}-${cloud}-${environment}
+}
+
+switch_to_build () {
+  account=${1}
+  cloud=${2}
+  environment=${3}
+
+  blob=${account}-${cloud}-${environment}
+  
+  echo "Switching to Build AWS Cluster"
+  sleep 3
+  export AWS_PROFILE=splice-build
+  otp aws | aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::455735594682:role/x_primary_admin --short-term-suffix build --role-session-name build
+  aws eks --region us-east-1 update-kubeconfig --name splice-build --alias splice-build
+  kubectl config use-context splice-build
+}
+
+switch_to_prod () {
+  account=${1}
+  cloud=${2}
+  environment=${3}
+  blob=${account}-${cloud}-${environment}
+  echo "Switching to PRODUCTION AWS Cluster"
+  sleep 3
+  export AWS_PROFILE=splice-prod
+  otp aws | aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::132801282250:role/x_primary_admin --short-term-suffix prod --role-session-name prod
+  aws eks --region us-east-1 update-kubeconfig --name cloud --alias cloud
+  kubectl config use-context cloud
+}
+
+switch_to_aws_nonprod(){
+  account=${1}
+  cloud=${2}
+  environment=${3}
+  echo "Switching to Wild Wild West AWS Cluster ${account}-${cloud}-${environment}"
+  export AWS_PROFILE=splice-nonprod
+  otp aws | aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::492738914134:role/x_primary_admin --short-term-suffix nonprod --role-session-name nonprod
+  aws eks --region us-east-1 update-kubeconfig --name ${account}-${cloud}-${environment} --alias ${account}-${cloud}-${environment}
+  kubectl config use-context ${account}-${cloud}-${environment}
+}
+
+switch_to_aws_qa(){
+  account=${1}
+  cloud=${2}
+  environment=${3}
+  echo "Switching to Quality Assurance AWS Cluster ${account}-${cloud}-${environment}"
+  export AWS_PROFILE=splice-qa
+  otp aws | aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::191134488495:role/x_primary_admin --short-term-suffix qa --role-session-name qa
+  aws eks --region us-east-1 update-kubeconfig --name ${account}-${cloud}-${environment} --alias ${account}-${cloud}-${environment}
+  kubectl config use-context ${account}-${cloud}-${environment}
+
+}
+
+switch_to_aws_pd(){
+  account=${1}
+  cloud=${2}
+  environment=${3}
+  echo "Switching to Product Development AWS Cluster ${account}-${cloud}-${environment}"
+  export AWS_PROFILE=splice-pd
+  otp aws | aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::869559096376:role/x_primary_admin --short-term-suffix pd --role-session-name pd
+  aws eks --region us-east-1 update-kubeconfig --name ${account}-${cloud}-${environment} --alias ${account}-${cloud}-${environment}
+  kubectl config use-context ${account}-${cloud}-${environment}
+}
+
+switch_to_aws () {
+  account=${1}
+  cloud=${2}
+  environment=${3}
+  case $account in
+    nonprod)
+      switch_to_aws_nonprod ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+      ;;
+    qa)
+      switch_to_aws_qa ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+      ;;
+    pd)
+      switch_to_aws_pd ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+      ;;
+    *)
+      echo ""
+      echo "Unrecongnized AWS MFA Account Profile"
+      echo ""
+      exit 1
+      ;;
+  esac
+}
+
+if [[ "${ENV}" == "splice-build" ||  "${ENV}" == "build" ]]; then
+  switch_to_build ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+elif [[ "${ENV}" == "cloud" ||  "${ENV}" == "prod" ]]; then
+  switch_to_prod ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+else
+
+  if [[ -z "${NAME[0]}"  ||  -z "${NAME[1]}"  ||  -z "${NAME[2]}" ]]; then
+      usage
+  fi
+
+  echo "Switching to ${ACCOUNT}, ${CLOUD} cluster, named ${ENVIRONMENT}"
+
+  case $CLOUD in
+
+    eks)
+      switch_to_aws ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+      ;;
+
+    aks)
+      switch_to_azure ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+      ;;
+
+    *)
+      echo ""
+      echo "Unrecongnized Cloud Provider"
+      echo ""
+      exit 1
+      ;;
+  esac
+fi
+
+kubectl config get-contexts | awk 'NR==1{print $1"   "$2};/\*/ {print $1"         "$2};'
+
+kurls -e ${ENV}
+
+# mfa_splice=                   'aws-mfa --profile splice --duration 43200'
+# mfa_splice-build=            $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::455735594682:role/x_primary_admin --short-term-suffix build --role-session-name build'
+# mfa_splice-cs=               $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::574106849347:role/x_primary_admin --short-term-suffix cs --role-session-name cs'
+# mfa_splice-marketplace=      $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::435375411953:role/x_primary_admin --short-term-suffix marketplace --role-session-name marketplace'
+# mfa_splice-nonprod=          $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::492738914134:role/x_primary_admin --short-term-suffix nonprod --role-session-name nonprod'
+# mfa_splice-nonprodeuc1=      $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::492738914134:role/x_primary_admin --short-term-suffix nonprodeuc1 --role-session-name nonprodeuc1'
+# mfa_splice-pd=               $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::869559096376:role/x_primary_admin --short-term-suffix pd --role-session-name pd'
+# mfa_splice-prod=             $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::132801282250:role/x_primary_admin --short-term-suffix prod --role-session-name prod'
+# mfa_splice-prodeuc1=         $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::132801282250:role/x_primary_admin --short-term-suffix prodeuc1 --role-session-name prodeuc1'
+# mfa_splice-qa=               $'aws-mfa --profile splice --duration 43200 --assume-role arn:aws:iam::191134488495:role/x_primary_admin --short-term-suffix qa --role-session-name qa'
