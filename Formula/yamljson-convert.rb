@@ -1,4 +1,4 @@
-class YamlJsonConvert < Formula
+class YamljsonConvert < Formula
   desc "This will download and install yaml2json/json2yaml from bronze1man repository."
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
