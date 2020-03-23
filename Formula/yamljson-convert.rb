@@ -2,13 +2,11 @@ class YamljsonConvert < Formula
   desc "This will download and install yaml2json/json2yaml from bronze1man repository."
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.1.3"
+  version "0.1.4"
 
   def install
     bin.install "bin/get-jsonyamlconvert"
-  end
-  test do
-    system bin/"get-jsonyamlconvert"
+    system "/usr/local/bin/get-jsonyamlconvert"
   end
   def caveats; <<~EOS
     The script "get-jsonyamlconvert" has been installed and run.  
