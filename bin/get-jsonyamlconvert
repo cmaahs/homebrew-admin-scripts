@@ -1,0 +1,60 @@
+#!/bin/bash
+# This script will download the latest version of json2yaml and yaml2yson from https://github.com/bronze1man/yaml2json
+
+
+set -o pipefail
+
+readonly program="$(basename "$0")"
+verbose=0
+
+usage() {
+  echo "
+    This script downloads and selects the matching helm client for your attached k8s cluster.
+    usage: $program
+    options:
+      -h, --help                    Show this help.
+  " | sed -E 's/^ {4}//'
+}
+
+# available flags
+while [[ "$1" ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      break
+      ;;
+  esac
+  shift
+done
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+fi
+
+LATEST_RELEASE=$(curl -s -X GET https://api.github.com/repos/bronze1man/yaml2json/releases/latest | jq -r '.tag_name')
+
+if [ ! -d "/usr/local/bronze1man/${LATEST_RELEASE}" ]; then
+  sudo mkdir -p "/usr/local/bronze1man/${LATEST_RELEASE}"
+  sudo wget --quiet -O "/usr/local/bronze1man/${LATEST_RELEASE}/yaml2json" "https://github.com/bronze1man/yaml2json/releases/download/${LATEST_RELEASE}/yaml2json_${TARGET_OS}_amd64"
+  sudo wget --quiet -O "/usr/local/bronze1man/${LATEST_RELEASE}/json2yaml" "https://github.com/bronze1man/yaml2json/releases/download/${LATEST_RELEASE}/json2yaml_${TARGET_OS}_amd64"
+  if [ -f "/usr/local/bronze1man/${LATEST_RELEASE}/yaml2json" ]; then
+    sudo chmod 775 "/usr/local/bronze1man/${LATEST_RELEASE}/yaml2json"
+  fi
+  if [ -f "/usr/local/bronze1man/${LATEST_RELEASE}/json2yaml" ]; then
+    sudo chmod 775 "/usr/local/bronze1man/${LATEST_RELEASE}/json2yaml"
+  fi
+fi
+if [ -f "/usr/local/bin/yaml2json" ]; then
+  sudo rm "/usr/local/bin/yaml2json"
+fi
+if [ -f "/usr/local/bin/json2yaml" ]; then
+  sudo rm "/usr/local/bin/json2yaml"
+fi
+sudo ln -s "/usr/local/bronze1man/${LATEST_RELEASE}/yaml2json" "/usr/local/bin/yaml2json"
+sudo ln -s "/usr/local/bronze1man/${LATEST_RELEASE}/json2yaml" "/usr/local/bin/json2yaml"
