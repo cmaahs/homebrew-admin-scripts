@@ -50,8 +50,8 @@ JSON_RELEASE=$(curl -s -X GET https://api.github.com/repos/bronze1man/json2yaml/
 if [ ! -d "/usr/local/bronze1man/json2yaml/${JSON_RELEASE}" ]; then
   sudo mkdir -p "/usr/local/bronze1man/json2yaml/${JSON_RELEASE}"
   sudo wget --quiet -O "/usr/local/bronze1man/json2yaml/${JSON_RELEASE}/json2yaml" "https://github.com/bronze1man/json2yaml/releases/download/${JSON_RELEASE}/json2yaml_${TARGET_OS}_amd64"
-  if [ -f "/usr/local/bronze1man/json2yaml/${LATEST_RELEASE}/json2yaml" ]; then
-    sudo chmod 775 "/usr/local/bronze1man/json2yaml/${LATEST_RELEASE}/json2yaml"
+  if [ -f "/usr/local/bronze1man/json2yaml/${JSON_RELEASE}/json2yaml" ]; then
+    sudo chmod 775 "/usr/local/bronze1man/json2yaml/${JSON_RELEASE}/json2yaml"
   fi
 fi
 
