@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+WINDOW_TITLE=${1:-$(new-codename)}
+GUID=$(uuidgen)
+
+cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
+{
+  "Profiles": [
+    {
+      "Custom Window Title" : "${WINDOW_TITLE}",
+      "Name" : "${WINDOW_TITLE}",
+      "Use Custom Window Title" : true,
+      "Guid" : "${GUID}"
+    }
+  ]
+}
+EOT
+
+ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles
