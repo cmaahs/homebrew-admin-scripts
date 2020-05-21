@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.5"
+  version "0.0.6"
 
   def install
     bin.install "bin/auth-vault"
@@ -31,6 +31,7 @@ class UtilScripts < Formula
     bin.install "bin/ls-window-title"
     bin.install "bin/new-window-title"
     bin.install "bin/rm-window-title"
+    bin.install "bin/k8s_list_environments.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
@@ -48,7 +49,11 @@ class UtilScripts < Formula
         - get-aws-creds
         - get-az-creds
         - get-gcp-creds
-      switch_vault.sh contains the following function:
+        k8s_list_environments.sh contains the following functions:
+        - get-aws-environments
+        - get-az-environments
+        - get-gcp-environments
+        switch_vault.sh contains the following function:
         - switch-vault
       otp and otp_basic are used with oauth-toolkit
         - otp uses hasicorp vault or mac os keyring for sensitive data storage
