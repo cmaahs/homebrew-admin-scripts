@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+WINDOW_TITLE=${1}
+
+if [[ -f ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} ]]; then
+    rm ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+fi
+
+ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles
