@@ -32,6 +32,8 @@ class UtilScripts < Formula
     bin.install "bin/new-window-title"
     bin.install "bin/rm-window-title"
     bin.install "bin/k8s_list_environments.sh"
+    bin.install "bin/log-path.sh"
+    bin.install "bin/iterm-set-titles.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
@@ -59,6 +61,9 @@ class UtilScripts < Formula
         - otp uses hasicorp vault or mac os keyring for sensitive data storage
         - otp_basic stores sensitive data in ~/.otpkeys
           - if you choose otp_basic, just re-link /usr/local/bin/otp to the otp_basic version.
+      iterm-set-titles.sh contains the following functions:
+        - set-title-window
+        - set-title-tab
   EOS
   end
 end

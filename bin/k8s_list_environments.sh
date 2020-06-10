@@ -1,5 +1,5 @@
 function get-az-environments {
-  az aks list | jq .
+  az aks list | jq '.[].name'
 }
 
 function get-aws-environments {

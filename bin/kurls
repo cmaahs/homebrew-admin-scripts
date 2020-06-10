@@ -40,6 +40,25 @@ azure_urls () {
 	echo "Cloud Manager:        https://${ingress_domain}"
 }
 
+gcloud_urls () {
+  account=${1}
+  cloud=${2}
+  environment=${3}
+	ingress_domain="${account}-${cloud}-${environment}.gke.splicemachine-dev.io"
+	ingress_admin_domain="${account}-${cloud}-${environment}admin.gke.splicemachine-dev.io"
+	ingress_hbase="${account}-${cloud}-${environment}admin-hbase.gke.splicemachine-dev.io"
+	ingress_hdfs="${account}-${cloud}-${environment}admin-hdfs.gke.splicemachine-dev.io"
+	ingress_dashboard="${account}-${cloud}-${environment}-dashboard.gke.splicemachine-dev.io"
+	
+	echo "Your urls are:"
+	echo "Dashboard:            https://${ingress_dashboard}/"
+	echo "Kibana:               https://${ingress_admin_domain}/kibana"
+	echo "Chronograf:           https://${ingress_admin_domain}/chronograf"
+	echo "Oauth:                https://${ingress_admin_domain}/oauth2"
+	echo "Cloud Manager Admin:  https://${ingress_admin_domain}"
+	echo "Cloud Manager:        https://${ingress_domain}"
+}
+
 build_urls () {
 	echo "Your urls are:"
 	echo "Kube:                   https://kube.build.splicemachine-dev.io/"
@@ -91,6 +110,10 @@ else
 
     aks)
       azure_urls ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
+      ;;
+
+    gke)
+      gcloud_urls ${ACCOUNT} ${CLOUD} ${ENVIRONMENT}
       ;;
 
     *)
