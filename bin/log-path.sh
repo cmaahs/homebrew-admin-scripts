@@ -5,5 +5,5 @@ function log-path() {
   fi
   LOC=$(pwd)
   TS=$(gdate --rfc-3339="seconds")
-  echo "${TS}:${ITERM_TAB}:${LOC}" >> ~/${TODAY}-OpenDirectories.txt
+  echo "${TS}:${ITERM_SESSION_ID}:${ITERM_TAB}:${LOC}" >> ~/${TODAY}-OpenDirectories.txt
 }
