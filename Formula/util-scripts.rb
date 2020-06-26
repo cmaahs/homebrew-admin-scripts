@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.8"
+  version "0.0.9"
 
   def install
     bin.install "bin/auth-vault"
@@ -29,7 +29,7 @@ class UtilScripts < Formula
     bin.install "bin/kurls-source.sh"
     bin.install "bin/launch-splicectl-api.sh"
     bin.install "bin/ls-window-title"
-    bin.install "bin/new-window-title"
+    bin.install "bin/mk-window-title"
     bin.install "bin/rm-window-title"
     bin.install "bin/k8s_list_environments.sh"
     bin.install "bin/log-path.sh"
