@@ -36,8 +36,12 @@ function get-aws-creds {
 
 function get-gcp-creds {
   local SPLICE_ENV=${1-nonprod-gke-dev1}
+  local ENV_SPLIT=("${(@s/-/)SPLICE_ENV}")
+  local ENV_ACCT=${ENV_SPLIT[1]}
+  local PROJECT="${ENV_ACCT}-gke"
 
   echo "Setting up: ${SPLICE_ENV}"
+  gcloud config set project ${PROJECT} > /dev/null 2>&1
   local CLUSTER=$(gcloud container clusters list --format='value(name)' --filter="name=${SPLICE_ENV}")
   if [[ "${CLUSTER}" == "${SPLICE_ENV}" ]]; then
     if which kubectl >/dev/null 2>&1; then

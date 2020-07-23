@@ -19,5 +19,13 @@ function get-aws-environments {
 
 
 function get-gcp-environments {
-  gcloud container clusters list --format='value(name)'
+  CURRENT_PROJECT=$(gcloud config get-value project)
+  for p in $(gcloud projects list --format='value(projectId)'); do
+    if [[ "${p}" == *-gke ]]; then
+      gcloud config set project ${p} > /dev/null 2>&1
+      echo "---- ${p} ----"
+      gcloud container clusters list --format='value(name)'
+    fi
+  done
+  gcloud config set project ${CURRENT_PROJECT} > /dev/null 2>&1
 }
