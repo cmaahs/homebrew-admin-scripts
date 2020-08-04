@@ -2,7 +2,7 @@ class GkeAlias < Formula
   desc "gke-alias is a tool for setting aliases for Kube Config contexts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.1"
+  version "0.0.2"
   revision 1
 
   if OS.mac?
