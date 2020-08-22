@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.11"
+  version "0.0.12"
 
   def install
     bin.install "bin/auth-vault"
@@ -15,6 +15,7 @@ class UtilScripts < Formula
     bin.install "bin/k8s-vault-functions.sh"
     bin.install "bin/k8s_creds_functions.sh"
     bin.install "bin/k8s_postgres_functions.sh"
+    bin.install "bin/k8s_kubeconfig_functions.sh"
     bin.install "bin/update-az-dns"
     bin.install "bin/otp"
     bin.install "bin/otp_basic"
