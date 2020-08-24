@@ -2,6 +2,7 @@
 
 WINDOW_TITLE=${1:-$(new-codename)}
 GUID=$(uuidgen)
+RUN_DMC=${2}
 
 cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
 {
@@ -15,5 +16,10 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
   ]
 }
 EOT
+
+if [[ -n ${RUN_DMC} ]]; then
+    QUERY=".Profiles[0].\"Initial Text\" += \"${RUN_DMC}\""
+    cat <<< $(jq 'QUERY' ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+fi
 
 ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles
