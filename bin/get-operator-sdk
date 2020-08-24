@@ -1,0 +1,163 @@
+#!/bin/bash
+# Due to the major shift in direction for the operator-sdk package, we need to continue to use
+# the 0.19.2 version until we can fully switch over to the latest project format.  This script 
+# will download the 0.19.2 package and symlink the binary to /usr/local/bin/operator-sdk
+#
+# The storage location for the downloaded client version is /usr/local/operator-sdk/{version}/
+
+set -o pipefail
+
+readonly program="$(basename "$0")"
+verbose=0
+
+usage() {
+  echo "
+    This script downloads the specified operator-sdk version and symlinks it into /usr/local/bin/
+    usage: $program
+    options:
+      -v, --version                 Specify the version to download
+      -h, --help                    Show this help.
+
+    valid versions:
+    	0.8.0, 0.8.1
+	0.9.0
+	0.10.0, 0.10.1
+	0.11.0
+	0.12.0
+	0.13.0
+	0.14.0, 0.14.1
+	0.15.0, 0.15.1, 0.15.2
+	0.16.0
+	0.17.0, 0.17.1, 0.17.2
+	0.18.0, 0.18.1, 0.18.2
+	0.19.0, 0.19.1, 0.19.2
+  " | sed -E 's/^ {4}//'
+}
+
+while getopts ":v:h" opt; do
+   case $opt in
+      v)
+         VERSION="${OPTARG}"
+         ;;
+      h)
+	 usage
+         exit 1
+         ;;
+   esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${VERSION} ]]; then
+	usage
+	exit 1
+fi
+
+case "${VERSION}" in 
+	"0.8.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.8.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.9.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.10.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.10.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.11.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.12.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.13.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.14.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.14.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.15.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.15.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.15.2")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.16.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.17.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.17.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.17.2")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.18.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.18.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.18.2")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.19.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.19.1")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"0.19.2")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	"1.0.0")
+		echo "Installing/Activating ${VERSION}..."
+      		;;
+	*)
+		echo "Not a valid version"
+		exit 1
+		;;
+esac
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux-gnu
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=apple-darwin
+fi
+
+if [ ! -d "/usr/local/operator-sdk" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/operator-sdk
+  sudo chown ${MY_LOGON}:admin /usr/local/operator-sdk
+fi;
+
+if [ ! -d "/usr/local/operator-sdk/${VERSION}" ]; then
+  mkdir -p "/usr/local/operator-sdk/${VERSION}"
+  # wget --quiet -O "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" "https://github.com/operator-framework/operator-sdk/releases/download/v1.0.0/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}"
+  wget --quiet -O "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" "https://github.com/operator-framework/operator-sdk/releases/download/v${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}"
+  wget --quiet -O "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}.asc" "https://github.com/operator-framework/operator-sdk/releases/download/v${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}.asc"
+  if [ -f "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" ]; then
+      chmod 775 "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}"
+  fi
+fi
+
+if [ -f "/usr/local/bin/operator-sdk" ]; then
+  rm "/usr/local/bin/operator-sdk"
+fi
+ln -s "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" "/usr/local/bin/operator-sdk"
+
+operator-sdk version

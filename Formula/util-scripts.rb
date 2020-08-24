@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.13"
+  version "0.0.14"
 
   def install
     bin.install "bin/auth-vault"
@@ -28,6 +28,7 @@ class UtilScripts < Formula
     bin.install "bin/destroy_azure_environments.sh"
     bin.install "bin/get-jenkinsjobs"
     bin.install "bin/get-terraformversion"
+    bin.install "bin/get-operator-sdk"
     bin.install "bin/kurls-source.sh"
     bin.install "bin/launch-splicectl-api.sh"
     bin.install "bin/ls-window-title"
