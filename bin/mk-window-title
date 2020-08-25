@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 WINDOW_TITLE=${1:-$(new-codename)}
 GUID=$(uuidgen)
@@ -19,7 +19,8 @@ EOT
 
 if [[ -n ${RUN_DMC} ]]; then
     QUERY=".Profiles[0].\"Initial Text\" += \"${RUN_DMC}\""
-    cat <<< $(jq 'QUERY' ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+    echo ${QUERY}
+    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
 fi
 
 ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles

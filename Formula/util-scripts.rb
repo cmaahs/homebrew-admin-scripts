@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.14"
+  version "0.0.15"
 
   def install
     bin.install "bin/auth-vault"
@@ -37,6 +37,7 @@ class UtilScripts < Formula
     bin.install "bin/k8s_list_environments.sh"
     bin.install "bin/log-path.sh"
     bin.install "bin/iterm-set-titles.sh"
+    bin.install "bin/roll_version.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
