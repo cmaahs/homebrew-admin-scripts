@@ -12,7 +12,7 @@ function set-default-configfile {
 }
 
 function apply-default-configfile {
-	CONF_NAME=$(cat ~/.kubeconfig_default | grep "${ITERM_PROFILE}:$" | sed "s/${ITERM_PROFILE}:$//")
+	CONF_NAME=$(cat ~/.kubeconfig_default | grep "${ITERM_PROFILE}:" | sed "s/${ITERM_PROFILE}://")
 	if [[ -z ${CONF_NAME} ]]; then
 		CONF_NAME=$(cat ~/.kubeconfig_default | grep Default | sed "s/Default://")
 	fi
