@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
 ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles
+ls -1 ~/.itermp/select/

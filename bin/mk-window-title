@@ -1,7 +1,9 @@
 #!/usr/bin/env zsh
 
 WINDOW_TITLE=${1:-$(new-codename)}
+WINDOW_TITLE_12=${WINDOW_TITLE}-12
 GUID=$(uuidgen)
+GUID_12=$(uuidgen)
 RUN_DMC=${2}
 
 cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
@@ -17,10 +19,50 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
 }
 EOT
 
+cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<EOT
+{
+  "Profiles": [
+    {
+      "Normal Font" : "RobotoMonoForPowerline-Light 12",
+      "Custom Window Title" : "${WINDOW_TITLE}",
+      "Name" : "${WINDOW_TITLE_12}",
+      "Use Custom Window Title" : true,
+      "Guid" : "${GUID_12}"
+    }
+  ]
+}
+EOT
+
 if [[ -n ${RUN_DMC} ]]; then
     QUERY=".Profiles[0].\"Initial Text\" += \"${RUN_DMC}\""
-    echo ${QUERY}
     cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
 fi
 
-ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles
+ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
+
+# Add itermp ${WINDOW_TITLE} - Tri Pane
+
+cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
+{
+  "fullscreen": false,
+  "rows": 120,
+  "columns": 400,
+  "profile": "${WINDOW_TITLE}",
+  "split": {
+    "type": "vertically",
+    "rows": 70,
+    "columns": 80,
+    "profile": "${WINDOW_TITLE_12}",
+    "split": {
+      "type": "horizontally",
+      "rows": 40,
+      "columns": 80,
+      "profile": "${WINDOW_TITLE_12}"
+    }
+  }
+}
+EOT
+
+touch ~/.itermp/select/${WINDOW_TITLE}
+
