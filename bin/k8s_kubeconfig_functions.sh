@@ -6,8 +6,8 @@ function set-default-configfile {
         echo "${ITERM_PROFILE}:${1}" >> ~/.kubeconfig_default
         echo "${ITERM_PROFILE}-12:${1}" >> ~/.kubeconfig_default
     else
-        sed -i "/${ITERM_PROFILE}$/c ${ITERM_PROFILE}:${1}" ~/.kubeconfig_default
-        sed -i "/${ITERM_PROFILE}-12$/c ${ITERM_PROFILE}-12:${1}" ~/.kubeconfig_default
+        sed -i "/${ITERM_PROFILE}:/c ${ITERM_PROFILE}:${1}" ~/.kubeconfig_default
+        sed -i "/${ITERM_PROFILE}-12:/c ${ITERM_PROFILE}-12:${1}" ~/.kubeconfig_default
     fi
 }
 
