@@ -13,7 +13,7 @@ if [[ -f ~/.itermp/${WINDOW_TITLE}.json ]]; then
     rm ~/.itermp/${WINDOW_TITLE}.json
 fi
 if [[ -f ~/.itermp/select/${WINDOW_TITLE} ]]; then
-    rm ~/.itermp/${WINDOW_TITLE}
+    rm ~/.itermp/select/${WINDOW_TITLE}
 fi
 
 ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
