@@ -33,11 +33,13 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<E
 }
 EOT
 
-if [[ -n ${RUN_DMC} ]]; then
-    QUERY=".Profiles[0].\"Initial Text\" += \"${RUN_DMC}\""
-    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
-    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
-fi
+# this runs as part of the startup, though the itermp issues a CD as part of it's startup, so that will always be overridden
+# moving this to the itemrp setup instead.
+#if [[ -n ${RUN_DMC} ]]; then
+#    QUERY=".Profiles[0].\"Initial Text\" += \"${RUN_DMC}\""
+#    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+#    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
+#fi
 
 ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
 
@@ -66,6 +68,22 @@ cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
   }
 }
 EOT
+
+if [[ -n ${RUN_DMC} ]]; then
+    QUERY=".command = \"set-title-tab work; ${RUN_DMC}\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    QUERY=".split.command = \"set-title-tab watcher; ${RUN_DMC}\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    QUERY=".split.split.command = \"set-title-tab processing; ${RUN_DMC}\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+else
+    QUERY=".command = \"set-title-tab work;\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    QUERY=".split.command = \"set-title-tab watcher;\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    QUERY=".split.split.command = \"set-title-tab processing;\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+fi
 
 touch ~/.itermp/select/${WINDOW_TITLE}
 
