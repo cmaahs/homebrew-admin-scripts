@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.24"
+  version "0.0.25"
 
   def install
     bin.install "bin/auth-vault"
@@ -20,6 +20,7 @@ class UtilScripts < Formula
     bin.install "bin/otp"
     bin.install "bin/otp_basic"
     bin.install "bin/switch_vault.sh"
+    bin.install "bin/switch_jira.sh"
     bin.install "bin/create_aws_environments.sh"
     bin.install "bin/create_azure_environments.sh"
     bin.install "bin/create_dns_yaml.sh"
@@ -61,6 +62,8 @@ class UtilScripts < Formula
         - get-gcp-environments
         switch_vault.sh contains the following function:
         - switch-vault
+        switch_jira.sh contains the following function:
+        - switch-jira
       otp and otp_basic are used with oauth-toolkit
         - otp uses hasicorp vault or mac os keyring for sensitive data storage
         - otp_basic stores sensitive data in ~/.otpkeys
