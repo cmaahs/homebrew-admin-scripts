@@ -15,7 +15,7 @@ case "${WHICH_JIRA}" in
       jira sprint
       ;;
     "pw")
-      jira list
+      jira mine
       ;;
   esac
 }
