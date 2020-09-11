@@ -13,9 +13,9 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
       "Custom Window Title" : "${WINDOW_TITLE}",
       "Name" : "${WINDOW_TITLE}",
       "Use Custom Window Title" : true,
-      "Guid" : "${GUID}"
+      "Guid" : "${GUID}",
       "Log Directory" : "\/Users\/cmaahs\/Work\/${WINDOW_TITLE}\/",
-      "Automatically Log" : true,
+      "Automatically Log" : true
     }
   ]
 }
@@ -29,9 +29,9 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<E
       "Custom Window Title" : "${WINDOW_TITLE}",
       "Name" : "${WINDOW_TITLE_12}",
       "Use Custom Window Title" : true,
-      "Guid" : "${GUID_12}"
+      "Guid" : "${GUID_12}",
       "Log Directory" : "\/Users\/cmaahs\/Work\/${WINDOW_TITLE}\/",
-      "Automatically Log" : true,
+      "Automatically Log" : true
     }
   ]
 }
