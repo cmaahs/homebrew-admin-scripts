@@ -1,0 +1,8 @@
+#!/bin/bash
+prs=$(gh pr status | rg "#\d*" --trim | sed "s/ .*$//g" | tr -d '#')
+
+for pr in $prs
+do
+  gh pr view "$pr" -w
+done
+

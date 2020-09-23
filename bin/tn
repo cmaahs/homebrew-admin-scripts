@@ -1,0 +1,5 @@
+#!/bin/bash
+# export MD_NOTEBOOKS_DIR in your bashrc or zshrc to the directory you cloned md-notebooks
+# Usage: tn {tool}
+# example: tn bash
+mdcat "$MD_NOTEBOOKS_DIR/Tools_Notes/$1/"$(ls "$MD_NOTEBOOKS_DIR/Tools_Notes/$1" | fzf )
