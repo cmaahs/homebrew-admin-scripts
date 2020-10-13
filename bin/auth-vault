@@ -4,12 +4,8 @@ FOUND_PROFILE=0
 FOUND_EXPIRATION=0
 while read LINE
 do
-  if [ "${LINE}" == "[splice-build]" ]
-  then
+  if [ "${LINE}" == "[splice-build]" ]; then
     FOUND_PROFILE=1
-  fi
-  if [ ${FOUND_PROFILE} -eq 1 ]
-  then
     if [[ ${LINE} == expiration* ]]
     then
       FOUND_EXPIRATION=1
