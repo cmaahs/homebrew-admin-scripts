@@ -59,13 +59,13 @@ cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
   "split": {
     "type": "vertically",
     "rows": 70,
-    "columns": 80,
+    "columns": 105,
     "profile": "${WINDOW_TITLE_12}",
     "command": "set-title-tab watcher",
     "split": {
       "type": "horizontally",
       "rows": 40,
-      "columns": 80,
+      "columns": 105,
       "profile": "${WINDOW_TITLE_12}",
       "command": "set-title-tab processing"
     }
