@@ -2,13 +2,15 @@
 
 FOUND_PROFILE=0
 FOUND_EXPIRATION=0
+UPDATED_TOKEN=0
 while read LINE
 do
-  if [ "${LINE}" == "[splice-build]" ]; then
+  if [ "${LINE}" == "[splice-build]" ] || [ ${FOUND_PROFILE} -eq 1 ]; then
     FOUND_PROFILE=1
     if [[ ${LINE} == expiration* ]]
     then
       FOUND_EXPIRATION=1
+      FOUND_PROFILE=0
       EXPIRATION_DATE=$(echo ${LINE} | cut -d'=' -f2)
       NOW_SECONDS=$(gdate +%s)
       EXPIRATION_SECONDS=$(gdate +%s -d "${EXPIRATION_DATE}")
@@ -21,6 +23,7 @@ do
         echo "Authentication successful"
         vault kv list secret
         NOOUT=$(security add-generic-password -U -a $(whoami) -s "build_vault_token" -w "${AUTH_TOKEN}" automation.keychain-db)
+	UPDATED_TOKEN=1
       else
         echo "AWS MFA Token HAS already expired"
       fi
@@ -29,9 +32,9 @@ do
 done < ${HOME}/.aws/credentials
 if [ ${FOUND_EXPIRATION} -eq 0 ]
 then
-  echo "AWS MFA Token HAS already expired"
+  echo "AWS MFA expiration WAS NOT found"
 fi
-if [ ${FOUND_PROFILE} -eq 0 ]
+if [ ${UPDATED_TOKEN} -eq 0 ]
 then
   echo "AWS Credentials profile [splice-build] was not in ~/.aws/credentials file"
 fi
