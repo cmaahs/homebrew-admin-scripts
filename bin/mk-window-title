@@ -14,7 +14,7 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
       "Name" : "${WINDOW_TITLE}",
       "Use Custom Window Title" : true,
       "Guid" : "${GUID}",
-      "Log Directory" : "\/Users\/cmaahs\/Work\/${WINDOW_TITLE}\/",
+      "Log Directory" : "\/Users\/cmaahs\/Work\/${WINDOW_TITLE}\/log\/",
       "Automatically Log" : true
     }
   ]
@@ -30,7 +30,7 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<E
       "Name" : "${WINDOW_TITLE_12}",
       "Use Custom Window Title" : true,
       "Guid" : "${GUID_12}",
-      "Log Directory" : "\/Users\/cmaahs\/Work\/${WINDOW_TITLE}\/",
+      "Log Directory" : "\/Users\/cmaahs\/Work\/${WINDOW_TITLE}\/log\/",
       "Automatically Log" : true
     }
   ]
@@ -91,4 +91,4 @@ fi
 
 touch ~/.itermp/select/${WINDOW_TITLE}
 
-mkdir ~/Work/${WINDOW_TITLE}
+mkdir -p ~/Work/${WINDOW_TITLE}/log
