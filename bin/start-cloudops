@@ -11,6 +11,7 @@ function usage()
     echo " -l          Mount a Let's Encrypt volume at /etc/letsencrypt"
     echo " -d          Mount the host /var/run/docker.sock"
     echo " -v          Gather and set the Vault container IP address (experiment)"
+    echo " -t          Set a custom DOCKER TAG"
     echo "   * -l must come last in parameter order, if -n is used."
 }
 
@@ -43,7 +44,7 @@ fi
 PORT=9022
 ENV_OPTIONS=""
 VOL_OPTIONS=""
-TAG=0.0.13
+TAG=0.0.17
 if [ -d ~/src ]; then
     VOL_OPTIONS="-v $(echo "${HOME}/src"):/home/src -v splice_home:/home"
 else
@@ -75,6 +76,9 @@ while getopts ":hp:vilnbd" OPTION; do
         ;;
     p)
         PORT=$OPTARG
+        ;;
+    t)
+        TAG=$OPTARG
         ;;
     h)
         usage
