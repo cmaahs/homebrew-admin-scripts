@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+STRIP=${1:-LATEST}
+
+declare -a LINKS
+
+CURRENT_NUM=$(cat ~/.xkcd)
+TITLE=$(curl -s "https://xkcd.com/" | grep 'img src.*title=' | cut -d'"' -f4)
+DETAIL=$(curl -s "https://xkcd.com/" | grep -A2 'Permanent link')
+for i in ${DETAIL}; do
+  LINKS+=("${i}")
+done
+NUM=$(echo ${LINKS[5]} | cut -d'/' -f4)
+
+if [[ "${STRIP}" == "LATEST" ]]; then
+  if [[ "${CURRENT_NUM}" != "${NUM}" ]]; then
+    echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${LINKS[11]})" | mdcat
+    echo ${NUM} > ~/.xkcd
+  fi
+fi
+
+if [[ "${STRIP}" == "random" ]]; then
+  declare -a RND_LINKS
+  RND=$(echo $(( $RANDOM % ${NUM} + 1 )))
+  TITLE=$(curl -s "https://xkcd.com/${RND}/" | grep 'img src.*title=' | cut -d'"' -f4)
+  DETAIL=$(curl -s "https://xkcd.com/${RND}/" | grep -A2 'Permanent link')
+  for i in ${DETAIL}; do
+    RND_LINKS+=("${i}")
+  done
+  NUM=$(echo ${RND_LINKS[5]} | cut -d'/' -f4)
+  echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${RND_LINKS[11]})" | mdcat
+fi
+

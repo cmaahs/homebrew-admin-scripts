@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.38"
+  version "0.0.39"
 
   def install
     bin.install "bin/auth-vault"
@@ -44,6 +44,7 @@ class UtilScripts < Formula
     bin.install "bin/split-manifest.ps1"
     bin.install "bin/prstat"
     bin.install "bin/sqlshell_functions.sh"
+    bin.install "bin/xkcd"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
