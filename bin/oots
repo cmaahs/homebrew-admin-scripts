@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+DIRECTION=${1}
+
+modify=1
+if [[ "${DIRECTION}" == "next" ]]; then
+    modify=1
+fi
+if [[ "${DIRECTION}" == "prev" ]]; then
+    modify=-1
+fi
+NUM=$(cat ~/.oots)
+NUM=$(( $NUM + $modify ))
+
+FILE_COUNT=$(ls -1 ~/oots/detox/${NUM}-*.gif | wc -l | awk '{ print $1 }')
+if [[ "${FILE_COUNT}" == "1" ]]; then
+    FILES=$(ls -1 ~/oots/detox/${NUM}-*.gif)
+    # MDNAME=$(echo ${FILES} | sed 's/ /\&#32;/g' | sed "s/'/\\'/g")
+    MDNAME=${FILES}
+    echo -e "# oots ${NUM}\n\n![Strip](${MDNAME})" > ~/tmp/strip.md
+    mdcat ~/tmp/strip.md
+else
+    FILES=$(find ~/oots/detox/ -name "${NUM}\ -*.gif")
+    for i in ${FILES}; do
+        echo "Read This one: ${i}"
+    done
+fi
+
+echo ${NUM} > ~/.oots
