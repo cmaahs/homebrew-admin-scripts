@@ -2,6 +2,7 @@
 
 DIRECTION=${1}
 
+
 modify=1
 if [[ "${DIRECTION}" == "next" ]]; then
     modify=1
@@ -11,14 +12,19 @@ if [[ "${DIRECTION}" == "prev" ]]; then
 fi
 NUM=$(cat ~/.oots)
 NUM=$(( $NUM + $modify ))
+if [[ ${DIRECTION} == "n" ]]; then
+    modify=0
+    NUM=${2}
+fi
 
-FILE_COUNT=$(ls -1 ~/oots/detox/${NUM}-*.gif | wc -l | awk '{ print $1 }')
+FILE_COUNT=$(ls -1 ~/oots/test/${NUM}*.md | wc -l | awk '{ print $1 }')
 if [[ "${FILE_COUNT}" == "1" ]]; then
-    FILES=$(ls -1 ~/oots/detox/${NUM}-*.gif)
+    FILES=$(ls -1 ~/oots/test/${NUM}*.md)
     # MDNAME=$(echo ${FILES} | sed 's/ /\&#32;/g' | sed "s/'/\\'/g")
-    MDNAME=${FILES}
-    echo -e "# oots ${NUM}\n\n![Strip](${MDNAME})" > ~/tmp/strip.md
-    mdcat ~/tmp/strip.md
+    # MDNAME=${FILES}
+    # echo -e "# oots ${NUM}\n\n![Strip](${MDNAME})" > ~/tmp/strip.md
+    # mdcat ~/tmp/strip.md
+    cat ${FILES} | mdcat
 else
     FILES=$(find ~/oots/detox/ -name "${NUM}\ -*.gif")
     for i in ${FILES}; do
@@ -26,4 +32,6 @@ else
     done
 fi
 
-echo ${NUM} > ~/.oots
+if [[ "${modify}" != "0" ]]; then
+    echo ${NUM} > ~/.oots
+fi
