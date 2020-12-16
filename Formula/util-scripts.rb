@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.37"
+  version "0.0.38"
 
   def install
     bin.install "bin/auth-vault"
@@ -40,6 +40,7 @@ class UtilScripts < Formula
     bin.install "bin/iterm-set-titles.sh"
     bin.install "bin/roll_version.sh"
     bin.install "bin/order-manifest.ps1"
+    bin.install "bin/oots"
     bin.install "bin/split-manifest.ps1"
     bin.install "bin/prstat"
     bin.install "bin/sqlshell_functions.sh"
