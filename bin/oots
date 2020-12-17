@@ -2,7 +2,6 @@
 
 DIRECTION=${1}
 
-
 modify=1
 if [[ "${DIRECTION}" == "next" ]]; then
     modify=1
@@ -17,16 +16,12 @@ if [[ ${DIRECTION} == "n" ]]; then
     NUM=${2}
 fi
 
-FILE_COUNT=$(ls -1 ~/oots/test/${NUM}*.md | wc -l | awk '{ print $1 }')
+FILE_COUNT=$(ls -1 ~/oots/${NUM}*.md | wc -l | awk '{ print $1 }')
 if [[ "${FILE_COUNT}" == "1" ]]; then
-    FILES=$(ls -1 ~/oots/test/${NUM}*.md)
-    # MDNAME=$(echo ${FILES} | sed 's/ /\&#32;/g' | sed "s/'/\\'/g")
-    # MDNAME=${FILES}
-    # echo -e "# oots ${NUM}\n\n![Strip](${MDNAME})" > ~/tmp/strip.md
-    # mdcat ~/tmp/strip.md
+    FILES=$(ls -1 ~/oots/${NUM}*.md)
     cat ${FILES} | mdcat
 else
-    FILES=$(find ~/oots/detox/ -name "${NUM}\ -*.gif")
+    FILES=$(find ~/oots/ -name "${NUM}.md")
     for i in ${FILES}; do
         echo "Read This one: ${i}"
     done
