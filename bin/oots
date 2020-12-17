@@ -9,23 +9,20 @@ fi
 if [[ "${DIRECTION}" == "prev" ]]; then
     modify=-1
 fi
-NUM=$(cat ~/.oots)
+if [[ -f ~/.oots ]]; then
+    NUM=$(cat ~/.oots)
+fi
+if [[ -z ${NUM} ]]; then
+    NUM=0
+fi
 NUM=$(( $NUM + $modify ))
 if [[ ${DIRECTION} == "n" ]]; then
     modify=0
     NUM=${2}
 fi
 
-FILE_COUNT=$(ls -1 ~/oots/${NUM}*.md | wc -l | awk '{ print $1 }')
-if [[ "${FILE_COUNT}" == "1" ]]; then
-    FILES=$(ls -1 ~/oots/${NUM}*.md)
-    cat ${FILES} | mdcat
-else
-    FILES=$(find ~/oots/ -name "${NUM}.md")
-    for i in ${FILES}; do
-        echo "Read This one: ${i}"
-    done
-fi
+FILE=$(ls -1 ~/oots/${NUM}.md)
+cat ${FILE} | mdcat
 
 if [[ "${modify}" != "0" ]]; then
     echo ${NUM} > ~/.oots
