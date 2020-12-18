@@ -2,10 +2,9 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.42"
+  version "0.0.44"
 
   def install
-    bin.install "bin/auth-vault"
     bin.install "bin/check-docker-tag"
     bin.install "bin/bash_256.sh"
     bin.install "bin/bash_color_ls.sh"
@@ -19,7 +18,6 @@ class UtilScripts < Formula
     bin.install "bin/update-az-dns"
     bin.install "bin/otp"
     bin.install "bin/otp_basic"
-    bin.install "bin/switch_vault.sh"
     bin.install "bin/switch_jira.sh"
     bin.install "bin/create_aws_environments.sh"
     bin.install "bin/create_azure_environments.sh"
@@ -40,10 +38,10 @@ class UtilScripts < Formula
     bin.install "bin/iterm-set-titles.sh"
     bin.install "bin/roll_version.sh"
     bin.install "bin/order-manifest.ps1"
-    bin.install "bin/oots"
     bin.install "bin/split-manifest.ps1"
     bin.install "bin/prstat"
     bin.install "bin/sqlshell_functions.sh"
+    bin.install "bin/vault_functions.sh"
     bin.install "bin/xkcd"
     if OS.mac?
       def install
@@ -69,8 +67,9 @@ class UtilScripts < Formula
         - get-aws-environments
         - get-az-environments
         - get-gcp-environments
-        switch_vault.sh contains the following function:
+        vault_functions.sh contains the following function:
         - switch-vault
+        - auth-vault
         switch_jira.sh contains the following function:
         - switch-jira
       otp and otp_basic are used with oauth-toolkit
