@@ -5,6 +5,7 @@ function get-az-creds {
     if which kubectl >/dev/null 2>&1; then
       az aks get-credentials --resource-group ${SPLICE_ENV} --name ${SPLICE_ENV} --overwrite-existing --file ~/.kube/config.${SPLICE_ENV} > /dev/null 2>&1
       local KUBECONF=~/.kube/config.${SPLICE_ENV}
+      chmod 600 ~/.kube/config.${SPLICE_ENV}
       KUBECONFIG="${KUBECONF}"
       export KUBECONFIG
     else
@@ -25,6 +26,7 @@ function get-aws-creds {
     if which kubectl >/dev/null 2>&1; then
       aws eks --region ${REGION} --profile ${PROFILE} update-kubeconfig --name ${SPLICE_ENV} --alias ${SPLICE_ENV} --kubeconfig ~/.kube/config.${SPLICE_ENV} > /dev/null 2>&1
       local KUBECONF=~/.kube/config.${SPLICE_ENV}
+      chmod 600 ~/.kube/config.${SPLICE_ENV}
       KUBECONFIG="${KUBECONF}"
       export KUBECONFIG
     else
@@ -50,6 +52,7 @@ function get-gcp-creds {
         rm ~/.kube/config.${SPLICE_ENV}
       fi
       local KUBECONF=~/.kube/config.${SPLICE_ENV}
+      chmod 600 ~/.kube/config.${SPLICE_ENV}
       KUBECONFIG="${KUBECONF}"
       export KUBECONFIG
       gcloud container clusters get-credentials ${SPLICE_ENV} --region ${LOCATION}

@@ -5,6 +5,8 @@ Collection of brew installable administrative scripts for making my daily life e
 
 ### Formula util-scripts
 
+`brew install cmaahs/admin-scripts/util-scripts`
+
 - "bin/auth-vault"
 - "bin/bash_256.sh"
 - "bin/bash_color_ls.sh"
@@ -22,6 +24,8 @@ Collection of brew installable administrative scripts for making my daily life e
 
 ### Formula docker-ops
 
+`brew install cmaahs/admin-scripts/util-scripts`
+
 - "bin/start-cloudvault"
 - "bin/start-cloudops"
 - "bin/start-personalops"
@@ -31,20 +35,30 @@ Collection of brew installable administrative scripts for making my daily life e
 
 ### Formula get-kubectlclient
 
+`brew install cmaahs/admin-scripts/get-kubectlclient`
+
 - "bin/get-kubectlclient"
 - "bin/get-kubectlversion"
 
 ### Formula get-helmclient
 
-- "bin/get-helmclient"
+`brew install cmaahs/admin-scripts/get-helmclient`
+
+- "bin/get-helmclient"      <- this is specific to helm2, auto matches to tiller version
+- "bin/get-helmversion"     <- this can fetch any version
 
 ### Formula git-code
+
+Since the release of `gh` command line tool by github.com, I don't use this much anymore
+
+`brew install cmaahs/admin-scripts/git-code`
 
 - "bin/darwin/git-code"
 - "bin/linux/git-code"
 
 ### Formula search-directory-history
 
+`brew install cmaahs/admin-scripts/search-directory-history`
+
 - "bin/darwin/search-directory-history"
 - "bin/linux/search-directory-history"
-

@@ -1,9 +1,11 @@
 #!/bin/bash
 # Due to the major shift in direction for the operator-sdk package, we need to continue to use
-# the 0.19.2 version until we can fully switch over to the latest project format.  This script 
+# the 0.19.2 version until we can fully switch over to the latest project format.  This script
 # will download the 0.19.2 package and symlink the binary to /usr/local/bin/operator-sdk
 #
 # The storage location for the downloaded client version is /usr/local/operator-sdk/{version}/
+
+# gh release list --repo operator-framework/operator-sdk
 
 set -o pipefail
 
@@ -15,6 +17,7 @@ usage() {
     This script downloads the specified operator-sdk version and symlinks it into /usr/local/bin/
     usage: $program
     options:
+	  -l, --latest
       -v, --version                 Specify the version to download
       -h, --help                    Show this help.
 
@@ -34,10 +37,13 @@ usage() {
   " | sed -E 's/^ {4}//'
 }
 
-while getopts ":v:h" opt; do
+while getopts ":v:hl" opt; do
    case $opt in
       v)
          VERSION="${OPTARG}"
+         ;;
+      l)
+         VERSION=$(gh release list --repo operator-framework/operator-sdk --limit 1 | cut -f3)
          ;;
       h)
 	 usage
@@ -52,7 +58,7 @@ if [[ -z ${VERSION} ]]; then
 	exit 1
 fi
 
-case "${VERSION}" in 
+case "${VERSION}" in
 	"0.8.0")
 		echo "Installing/Activating ${VERSION}..."
       		;;

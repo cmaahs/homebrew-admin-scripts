@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.44"
+  version "0.0.45"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -43,6 +43,7 @@ class UtilScripts < Formula
     bin.install "bin/sqlshell_functions.sh"
     bin.install "bin/vault_functions.sh"
     bin.install "bin/xkcd"
+    bin.install "bin/new-bash-script"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"

@@ -1,6 +1,6 @@
 #!/bin/bash
-# This is intended to connect to your current k8s cluster (using the helm client you already have) and determine the 
-# server version that is running, and ensure that you have the version downloaded, and the client version that matches the 
+# This is intended to connect to your current k8s cluster (using the helm client you already have) and determine the
+# server version that is running, and ensure that you have the version downloaded, and the client version that matches the
 # server is them symlinked into /usr/local/bin/helm
 #
 # The storage location for the downloaded client version is /usr/local/helm/{version}/
@@ -39,15 +39,17 @@ done
 # MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   TARGET_OS=linux
+  OS_GROUP=root
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   TARGET_OS=darwin
+  OS_GROUP=admin
 fi
 
 if [ ! -d "/usr/local/helm" ]; then
   MY_LOGON=$(whoami)
   echo ${MY_LOGON}
   sudo mkdir -p /usr/local/helm
-  sudo chown ${MY_LOGON}:admin /usr/local/helm
+  sudo chown ${MY_LOGON}:${OS_GROUP} /usr/local/helm
 fi;
 
 if which helm >/dev/null 2>&1; then
@@ -93,11 +95,11 @@ if [[ ! -z "${HELM_SERVER}" ]]; then
       chmod 775 "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller"
     fi
   fi
-  if [ -f "/usr/local/bin/helm" ]; then
+  if [ -h "/usr/local/bin/helm" ]; then
     rm "/usr/local/bin/helm"
   fi
   ln -s "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/helm" "/usr/local/bin/helm"
-  if [ -f "/usr/local/bin/tiller" ]; then
+  if [ -h "/usr/local/bin/tiller" ]; then
     rm "/usr/local/bin/tiller"
   fi
   ln -s "/usr/local/helm/${HELM_SERVER}/${TARGET_OS}-amd64/tiller" "/usr/local/bin/tiller"

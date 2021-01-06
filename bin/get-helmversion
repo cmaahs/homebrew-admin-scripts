@@ -1,0 +1,49 @@
+#!/bin/bash
+
+HELM_CLIENT=${1:-$(gh release list --repo helm/helm --limit 1 | cut -f3)}
+LIST_LIMIT=${2:-30}
+
+if [[ "${HELM_CLIENT}" == "--list" ]]; then
+  echo "VERSIONS"
+  gh release list --repo helm/helm --limit ${LIST_LIMIT}
+  exit
+fi
+
+echo "Fetching helm version: ${HELM_CLIENT}"
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+  OS_GROUP=root
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+  OS_GROUP=admin
+fi
+
+if [ ! -d "/usr/local/helm" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/helm
+  sudo chown ${MY_LOGON}:sudo chown ${MY_LOGON}:${OS_GROUP} /usr/local/helm /usr/local/helm
+fi;
+if [ ! -d "/usr/local/helm/${HELM_CLIENT}" ]; then
+  mkdir -p "/usr/local/helm/${HELM_CLIENT}"
+  wget --quiet -O "/usr/local/helm/helm-${HELM_CLIENT}-${TARGET_OS}-amd64.tar.gz" "https://get.helm.sh/helm-${HELM_CLIENT}-${TARGET_OS}-amd64.tar.gz"
+  tar -xzvf "/usr/local/helm/helm-${HELM_CLIENT}-${TARGET_OS}-amd64.tar.gz" -C "/usr/local/helm/${HELM_CLIENT}/"
+  if [ -f "/usr/local/helm/${HELM_CLIENT}/${TARGET_OS}-amd64/helm" ]; then
+    chmod 775 "/usr/local/helm/${HELM_CLIENT}/${TARGET_OS}-amd64/helm"
+  fi
+  if [ -f "/usr/local/helm/${HELM_CLIENT}/${TARGET_OS}-amd64/tiller" ]; then
+    chmod 775 "/usr/local/helm/${HELM_CLIENT}/${TARGET_OS}-amd64/tiller"
+  fi
+fi
+if [ -h "/usr/local/bin/helm" ]; then
+  rm "/usr/local/bin/helm"
+fi
+ln -s "/usr/local/helm/${HELM_CLIENT}/${TARGET_OS}-amd64/helm" "/usr/local/bin/helm"
+if [ -h "/usr/local/bin/tiller" ]; then
+  rm "/usr/local/bin/tiller"
+fi
+ln -s "/usr/local/helm/${HELM_CLIENT}/${TARGET_OS}-amd64/tiller" "/usr/local/bin/tiller"
+
+helm version
