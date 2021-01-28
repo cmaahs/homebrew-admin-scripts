@@ -1,0 +1,85 @@
+#!/bin/bash
+# gh release list --repo gulyasm/jsonui
+
+set -o pipefail
+
+VERSION=$(gh release list --repo gulyasm/jsonui --limit 1 | cut -f3)
+
+readonly program="$(basename "$0")"
+verbose=0
+
+usage() {
+  echo "
+    This script downloads the specified operator-sdk version and symlinks it into /usr/local/bin/
+    usage: $program
+    options:
+      -l, --list                    List available versions
+      -v, --version                 Specify the version to download
+      -h, --help                    Show this help.
+  " | sed -E 's/^ {4}//'
+}
+
+versionlist() {
+    echo "VERSIONS"
+    gh release list --repo gulyasm/jsonui --limit 20
+}
+
+while getopts ":v:hl" opt; do
+   case $opt in
+      v|--version)
+         VERSION="${OPTARG}"
+         ;;
+      l|--list)
+         versionlist
+	 exit 0
+         ;;
+      h|--help)
+	 usage
+         exit 1
+         ;;
+   esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${VERSION} ]]; then
+	usage
+	exit 1
+fi
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+fi
+
+echo "Installing/Activating ${VERSION}..."
+
+if [ ! -d "/usr/local/jsonui" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/jsonui
+  sudo chown ${MY_LOGON}:admin /usr/local/jsonui
+fi;
+
+if [ ! -d "/usr/local/jsonui/${VERSION}" ]; then
+  mkdir -p "/usr/local/jsonui/${VERSION}"
+
+  # https://github.com/gulyasm/jsonui/releases/download/v1.0.1/jsonui_linux_amd64
+  # https://github.com/gulyasm/jsonui/releases/download/v1.0.1/jsonui_darwin_amd64
+
+  url="https://github.com/gulyasm/jsonui/releases/download/${VERSION}/jsonui_${TARGET_OS}_amd64"
+  LINK_TARGET="/usr/local/jsonui/${VERSION}/jsonui_${TARGET_OS}_amd64"
+  curl -Ls ${url} -o ${LINK_TARGET}
+
+
+fi
+
+if [ -f "${LINK_TARGET}" ]; then
+  chmod 775 "${LINK_TARGET}"
+fi
+if [ -L "/usr/local/bin/jsonui" ] || [ -f "/usr/local/bin/jsonui" ]; then
+  rm "/usr/local/bin/jsonui"
+fi
+ln -s "${LINK_TARGET}" "/usr/local/bin/jsonui"
+

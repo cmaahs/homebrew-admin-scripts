@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+for CHANNEL in $(region="us-east1"; gcloud container get-server-config --region $region --format="json(channels)" | jq -r '.channels[].channel'); do
+    echo "${CHANNEL}"
+    region="us-east1"
+    gcloud container get-server-config --region $region --format="json(channels)" 2> /dev/null | jq ".channels[] | select(.channel==\"${CHANNEL}\") | .validVersions"
+done

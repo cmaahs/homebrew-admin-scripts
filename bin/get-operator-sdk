@@ -9,6 +9,8 @@
 
 set -o pipefail
 
+VERSION=$(gh release list --repo operator-framework/operator-sdk --limit 1 | cut -f3)
+
 readonly program="$(basename "$0")"
 verbose=0
 
@@ -17,35 +19,27 @@ usage() {
     This script downloads the specified operator-sdk version and symlinks it into /usr/local/bin/
     usage: $program
     options:
-	  -l, --latest
+      -l, --list                    List available versions
       -v, --version                 Specify the version to download
       -h, --help                    Show this help.
-
-    valid versions:
-    	0.8.0, 0.8.1
-	0.9.0
-	0.10.0, 0.10.1
-	0.11.0
-	0.12.0
-	0.13.0
-	0.14.0, 0.14.1
-	0.15.0, 0.15.1, 0.15.2
-	0.16.0
-	0.17.0, 0.17.1, 0.17.2
-	0.18.0, 0.18.1, 0.18.2
-	0.19.0, 0.19.1, 0.19.2
   " | sed -E 's/^ {4}//'
+}
+
+versionlist() {
+    echo "VERSIONS"
+    gh release list --repo operator-framework/operator-sdk --limit 20
 }
 
 while getopts ":v:hl" opt; do
    case $opt in
-      v)
+      v|--version)
          VERSION="${OPTARG}"
          ;;
-      l)
-         VERSION=$(gh release list --repo operator-framework/operator-sdk --limit 1 | cut -f3)
+      l|--list)
+         versionlist
+	 exit 0
          ;;
-      h)
+      h|--help)
 	 usage
          exit 1
          ;;
@@ -58,91 +52,7 @@ if [[ -z ${VERSION} ]]; then
 	exit 1
 fi
 
-case "${VERSION}" in
-	"0.8.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.8.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.9.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.10.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.10.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.11.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.12.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.13.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.14.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.14.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.15.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.15.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.15.2")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.16.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.17.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.17.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.17.2")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.18.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.18.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.18.2")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.19.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.19.1")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"0.19.2")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	"1.0.0")
-		echo "Installing/Activating ${VERSION}..."
-      		;;
-	*)
-		echo "Not a valid version"
-		exit 1
-		;;
-esac
-
-# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-  TARGET_OS=linux-gnu
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  TARGET_OS=apple-darwin
-fi
+echo "Installing/Activating ${VERSION}..."
 
 if [ ! -d "/usr/local/operator-sdk" ]; then
   MY_LOGON=$(whoami)
@@ -151,19 +61,73 @@ if [ ! -d "/usr/local/operator-sdk" ]; then
   sudo chown ${MY_LOGON}:admin /usr/local/operator-sdk
 fi;
 
+url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/checksums.txt"
+if curl --output /dev/null --silent --head --fail "$url"; then
+  # MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    TARGET_OS=linux
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    TARGET_OS=darwin
+  fi
+  LINK_TARGET="/usr/local/operator-sdk/${VERSION}/operator-sdk_${TARGET_OS}_amd64"
+else
+  # MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    TARGET_OS=linux-gnu
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    TARGET_OS=apple-darwin
+  fi
+  LINK_TARGET="/usr/local/operator-sdk/${VERSION}/operator-sdk-${VERSION}-x86_64-${TARGET_OS}"
+fi
+
 if [ ! -d "/usr/local/operator-sdk/${VERSION}" ]; then
   mkdir -p "/usr/local/operator-sdk/${VERSION}"
-  # wget --quiet -O "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" "https://github.com/operator-framework/operator-sdk/releases/download/v1.0.0/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}"
-  wget --quiet -O "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" "https://github.com/operator-framework/operator-sdk/releases/download/v${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}"
-  wget --quiet -O "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}.asc" "https://github.com/operator-framework/operator-sdk/releases/download/v${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}.asc"
-  if [ -f "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" ]; then
-      chmod 775 "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}"
+
+  # operator-sdk project changed the URLs for the release artifacts at v1.3.0
+  url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/checksums.txt"
+  if curl --output /dev/null --silent --head --fail "$url"; then
+    # Download using NEW URL format
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.3.0/operator-sdk_darwin_amd64
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.3.0/operator-sdk_linux_amd64
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.3.0/checksums.txt
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.3.0/checksums.txt.asc
+    url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/checksums.txt"
+    dl_name="/usr/local/operator-sdk/${VERSION}/checksums.txt"
+    curl -Ls ${url} -o ${dl_name}
+
+    url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/checksums.txt.asc"
+    dl_name="/usr/local/operator-sdk/${VERSION}/checksums.txt.asc"
+    curl -Ls ${url} -o ${dl_name}
+
+    url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/operator-sdk_${TARGET_OS}_amd64"
+    dl_name="/usr/local/operator-sdk/${VERSION}/operator-sdk_${TARGET_OS}_amd64"
+    curl -Ls ${url} -o ${dl_name}
+
+  else
+    # Download using OLD URL format
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.2.0 /operator-sdk-v1.2.0 -x86_64-apple-darwin
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.2.0 /operator-sdk-v1.2.0 -x86_64-apple-darwin.asc
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.2.0 /operator-sdk-v1.2.0 -x86_64-linux-gnu
+    # https://github.com/operator-framework/operator-sdk/releases/download/v1.2.0 /operator-sdk-v1.2.0 -x86_64-linux-gnu.asc
+    # https://github.com/operator-framework/operator-sdk/releases/download/v0.19.4/operator-sdk-v0.19.4-x86_64-apple-darwin
+    # https://github.com/operator-framework/operator-sdk/releases/download/v0.19.4/operator-sdk-v0.19.4-x86_64-apple-darwin.asc
+    url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/operator-sdk-${VERSION}-x86_64-${TARGET_OS}.asc"
+    dl_name="/usr/local/operator-sdk/${VERSION}/operator-sdk-${VERSION}-x86_64-${TARGET_OS}.asc"
+    curl -Ls "${url}" -o "${dl_name}"
+
+    url="https://github.com/operator-framework/operator-sdk/releases/download/${VERSION}/operator-sdk-${VERSION}-x86_64-${TARGET_OS}"
+    dl_name="/usr/local/operator-sdk/${VERSION}/operator-sdk-${VERSION}-x86_64-${TARGET_OS}"
+    curl -Ls "${url}" -o "${dl_name}"
+
   fi
 fi
 
-if [ -f "/usr/local/bin/operator-sdk" ]; then
+if [ -f "${LINK_TARGET}" ]; then
+  chmod 775 "${LINK_TARGET}"
+fi
+if [ -L "/usr/local/bin/operator-sdk" ] || [ -f "/usr/local/bin/operator-sdk" ]; then
   rm "/usr/local/bin/operator-sdk"
 fi
-ln -s "/usr/local/operator-sdk/${VERSION}/operator-sdk-v${VERSION}-x86_64-${TARGET_OS}" "/usr/local/bin/operator-sdk"
+ln -s "${LINK_TARGET}" "/usr/local/bin/operator-sdk"
 
 operator-sdk version
