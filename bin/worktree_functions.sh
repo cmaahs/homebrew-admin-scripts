@@ -49,15 +49,18 @@ function rmwt {
     if [[ -n ${WTPATH} ]]; then 
       if [[ -d ~/Worktrees/${WTPATH} ]]; then
         git worktree remove ~/Worktrees/${WTPATH}
-	DIRTODELETE=$(find ~/Worktrees/${REPONAME} -maxdepth 1 -mindepth 1 -empty | sed "s/${SEDHOME}\/Worktrees\///" | fzf --prompt "Remove Empty Directory? (ENTER/delete, ESC/cancel) >")
-	if [[ -n ${DIRTODELETE} ]]; then
-	  if [[ -d ~/Worktrees/${DIRTODELETE} ]]; then
-	    rmdir ~/Worktrees/${DIRTODELETE}
+	EMPTYCOUNT=$(find ~/Worktrees/${REPONAME} -maxdepth 1 -mindepth 1 -empty | sed "s/${SEDHOME}\/Worktrees\///" | wc -l | awk '{ print $1 }')
+	if [[ "${EMPTYCOUNT}" != "0" ]]; then
+          DIRTODELETE=$(find ~/Worktrees/${REPONAME} -maxdepth 1 -mindepth 1 -empty | sed "s/${SEDHOME}\/Worktrees\///" | fzf --prompt "Remove Empty Directory? (ENTER/delete, ESC/cancel) >")
+	  if [[ -n ${DIRTODELETE} ]]; then
+	    if [[ -d ~/Worktrees/${DIRTODELETE} ]]; then
+	      rmdir ~/Worktrees/${DIRTODELETE}
+	    else
+	      echo -e "${YELLOW}This shouldn't happen, the directory didn't exist!${NONE}"
+	    fi
 	  else
-	    echo -e "${YELLOW}This shouldn't happen, the directory didn't exist!${NONE}"
+            echo -e "${YELLOW}Deletion of empty dirctory cancelled${NONE}"
 	  fi
-	else
-	  echo -e "${YELLOW}Deletion of empty dirctory cancelled${NONE}"
 	fi
       else
         echo -e "${YELLOW}The worktree directory doesn't exist, aborting${NONE}"
