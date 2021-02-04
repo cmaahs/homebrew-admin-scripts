@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.46"
+  version "0.0.47"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -46,6 +46,7 @@ class UtilScripts < Formula
     bin.install "bin/new-bash-script"
     bin.install "bin/get-gke-versions"
     bin.install "bin/get-jsonui"
+    bin.install "bin/worktreee_functions.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
@@ -82,6 +83,11 @@ class UtilScripts < Formula
       iterm-set-titles.sh contains the following functions:
         - set-title-window
         - set-title-tab
+      worktree_functions.sh contains the following functions:
+        - mkwt <branchname> (branchname needs to be in the form of JIRANUM/description)
+        - cdwt (prompts for a worktree to change to)
+        - cdwtp (changes to the parent git directory)
+        - rmwt (prompts for a worktree to remove, and prompt to remove empty parent)
   EOS
   end
 end
