@@ -46,7 +46,7 @@ ENV_OPTIONS=""
 VOL_OPTIONS=""
 TAG=0.0.17
 if [ -d ~/src ]; then
-    VOL_OPTIONS="-v $(echo "${HOME}/src"):/home/src -v splice_home:/home"
+    VOL_OPTIONS="-v `echo "${HOME}/Worktrees"`:/home/Worktrees -v $(echo "${HOME}/src"):/home/src -v splice_home:/home"
 else
     VOL_OPTIONS="-v splice_home:/home"
 fi
