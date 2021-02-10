@@ -52,12 +52,12 @@ function get-gcp-creds {
         rm ~/.kube/config.${SPLICE_ENV}
       fi
       local KUBECONF=~/.kube/config.${SPLICE_ENV}
-      chmod 600 ~/.kube/config.${SPLICE_ENV}
       KUBECONFIG="${KUBECONF}"
       export KUBECONFIG
       gcloud container clusters get-credentials ${SPLICE_ENV} --region ${LOCATION}
       sed -i "/    user:/{N;s/name: .*$/name: ${SPLICE_ENV}/}" ${KUBECONF}
       sed -i "/current-context:/c current-context: ${SPLICE_ENV}" ${KUBECONF}
+      chmod 600 ~/.kube/config.${SPLICE_ENV}
     else
       echo "Failed"
     fi
