@@ -17,7 +17,7 @@ function cdwt {
   YELLOW='\033[01;33m'
   NONE='\033[0m'
   SEDHOME=$(echo ${HOME} | sed 's/\//\\\//g')
-  WTPATH=$(find ~/Worktrees -maxdepth 3 -mindepth 3 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | fzf)
+  WTPATH=$(find ~/Worktrees -maxdepth 3 -mindepth 3 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
   if [[ -n ${WTPATH} ]]; then
     cd ${HOME}/Worktrees/${WTPATH}
     export BRANCH=$(git branch --show-current)
@@ -50,7 +50,7 @@ function rmwt {
   CURRDIR=$(pwd)
   if [[ "${PARENT}" == "${CURRDIR}" ]]; then
     REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
-    WTPATH=$(find ~/Worktrees/**/${REPONAME} -maxdepth 1 -mindepth 1 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | fzf)
+    WTPATH=$(find ~/Worktrees/**/${REPONAME} -maxdepth 1 -mindepth 1 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
     if [[ -n ${WTPATH} ]]; then
       if [[ -d ~/Worktrees/${WTPATH} ]]; then
         git worktree remove ~/Worktrees/${WTPATH}
