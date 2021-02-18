@@ -1,9 +1,9 @@
 function set-k8s-postgres {
-	export PGUSER=$(splicectl get system-settings | jq -r '.data.POSTGRES_USER' | base64 -d)
+	export PGUSER=$(splicectl get system-settings -o json | jq -r '.data.POSTGRES_USER' | base64 -d)
 	export PGPORT=5432
 	export PGHOST=localhost
-	export PGDATABASE=$(splicectl get system-settings | jq -r '.data.POSTGRES_DATABASE')
-	export PGPASSWORD=$(splicectl get system-settings | jq -r '.data.POSTGRES_PASSWORD' | base64 -d)
+	export PGDATABASE=$(splicectl get system-settings -o json | jq -r '.data.POSTGRES_DATABASE')
+	export PGPASSWORD=$(splicectl get system-settings -o json | jq -r '.data.POSTGRES_PASSWORD' | base64 -d)
 }
 
 function connect-k8s-postgres {
