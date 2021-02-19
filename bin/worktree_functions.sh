@@ -50,7 +50,7 @@ function rmwt {
   CURRDIR=$(pwd)
   if [[ "${PARENT}" == "${CURRDIR}" ]]; then
     REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
-    WTPATH=$(find ~/Worktrees/**/${REPONAME} -maxdepth 1 -mindepth 1 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
+    WTPATH=$(find ~/Worktrees/*/${REPONAME} -maxdepth 1 -mindepth 1 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
     if [[ -n ${WTPATH} ]]; then
       if [[ -d ~/Worktrees/${WTPATH} ]]; then
         git worktree remove ~/Worktrees/${WTPATH}
