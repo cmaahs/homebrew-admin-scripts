@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.55"
+  version "0.0.56"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -47,6 +47,7 @@ class UtilScripts < Formula
     bin.install "bin/get-gke-versions"
     bin.install "bin/get-jsonui"
     bin.install "bin/worktree_functions.sh"
+    bin.install "bin/git_functions.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
@@ -58,6 +59,10 @@ class UtilScripts < Formula
     The use of k8s-vault-functions.sh, k8s_cred_functions.sh, sqlshell_functions.sh,
     and switch_vault.sh all require a "source {script.sh}" line in the startup
     profiles, .bashrc/.zshrc
+      git_functions.sh contains the following functions:
+        - git-add-modified 
+        - config-add-modified
+          * used to add all the "modified" files, config is the dotfiles alias
       sqlshell_functions.sh contains the following function:
         - connect-sqlshell
       k8s-vault-function.sh contains the following functions:
