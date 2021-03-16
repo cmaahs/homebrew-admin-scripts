@@ -59,3 +59,25 @@ function switch-vault {
   echo -n "Value in secret/vaultname: "
   vault kv get secret/vaultname | jq -r '.data.data.value'
 }
+
+function test-jenkins-token {
+  export TKLIST_JQFORMAT='(["NAME","EXPIRES"]), (. | ["JENKINS", .data.expire_time])| @tsv'
+  export TKLISTNH_JQFORMAT='(. | ["CMAAHS", .data.expire_time])| @tsv'
+  export VAULT_TOKEN=$(vault kv get -format=table -field=token secret/team/vault_jenkins)
+  JENKINS=$(vault token lookup | jq -r ${TKLIST_JQFORMAT})
+  WHICH_VAULT=build
+  export VAULT_TOKEN=$(security find-generic-password -l "${WHICH_VAULT}_vault_token" -w automation.keychain-db)
+  CMAAHS=$(vault token lookup | jq -r ${TKLISTNH_JQFORMAT})
+  echo "${JENKINS}\n${CMAAHS}" | column -t
+}
+
+function list-vault-tokens {
+  OUT="NAME\tISSUED\tEXPIRES"
+  ACCESSORS=($(vault list -format=json auth/token/accessors/ | jq -r '.[]'))
+  for a in ${ACCESSORS}; do
+    echo "Processing ${a}..."
+    TOKINFO=$(vault token lookup -accessor ${a} | jq -r '( . | [.data.display_name, .data.issue_time, .data.expire_time]) | @tsv')
+    OUT="${OUT}\n${TOKINFO}"
+  done
+  echo "${OUT}" | column -t
+}
