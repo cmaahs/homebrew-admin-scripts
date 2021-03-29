@@ -17,7 +17,12 @@ function cdwt {
   YELLOW='\033[01;33m'
   NONE='\033[0m'
   SEDHOME=$(echo ${HOME} | sed 's/\//\\\//g')
-  WTPATH=$(find ~/Worktrees -maxdepth 3 -mindepth 3 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
+  REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
+  if [[ -n ${REPONAME} ]]; then
+    WTPATH=$(find ~/Worktrees/*/${REPONAME} -maxdepth 1 -mindepth 1 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
+  else
+    WTPATH=$(find ~/Worktrees -maxdepth 3 -mindepth 3 | grep -v .DS_Store | sed "s/${SEDHOME}\/Worktrees\///" | sort | fzf --tac)
+  fi
   if [[ -n ${WTPATH} ]]; then
     cd ${HOME}/Worktrees/${WTPATH}
     export BRANCH=$(git branch --show-current)

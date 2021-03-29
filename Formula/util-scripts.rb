@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.58"
+  version "0.0.59"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -64,7 +64,7 @@ class UtilScripts < Formula
     and switch_vault.sh all require a "source {script.sh}" line in the startup
     profiles, .bashrc/.zshrc
       git_functions.sh contains the following functions:
-        - git-add-modified 
+        - git-add-modified
         - config-add-modified
           * used to add all the "modified" files, config is the dotfiles alias
       sqlshell_functions.sh contains the following function:
