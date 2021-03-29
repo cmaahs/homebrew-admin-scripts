@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+RETRO_DATE=$(gdate -d "2 fri" +"%Y-%m-%d")
+
+if [[ ! -f "/Users/cmaahs/Google Drive/src/Markdown/personal-notes/SpliceMachine/SprintRetrospectives/Retrospective_${RETRO_DATE}.md" ]]; then
+cat > "/Users/cmaahs/Google Drive/src/Markdown/personal-notes/SpliceMachine/SprintRetrospectives/Retrospective_${RETRO_DATE}.md" <<EOT
+# Sprint Retrospective
+
+## What worked
+
+## What didn't work
+
+## What got done
+
+## keep doing
+
+- +1 hack-a-thon
+
+## Start doing
+
+## Stop doing
+
+EOT
+else 
+  echo "Retrospective Notes already created"
+fi

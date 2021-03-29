@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker kill bind9 && \
+docker rm bind9

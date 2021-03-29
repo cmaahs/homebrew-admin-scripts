@@ -1,0 +1,11 @@
+docker run -d \
+        --name=bind9 \
+        --restart=always \
+        --publish 53:53/udp \
+        --publish 53:53/tcp \
+        --publish 127.0.0.1:953:953/tcp \
+        --volume bind_etc:/etc/bind \
+        --volume bind_cache:/var/cache/bind \
+        --volume bind_lib:/var/lib/bind \
+        --volume bind_log:/var/log \
+        internetsystemsconsortium/bind9:9.16

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+HACK_DATE=$(gdate -d "tue" +"%Y-%m-%d")
+
+if [[ ! -f "/Users/cmaahs/Google Drive/src/Markdown/personal-notes/SpliceMachine/Hackathon/Hack_${HACK_DATE}.md" ]]; then
+cat > "/Users/cmaahs/Google Drive/src/Markdown/personal-notes/SpliceMachine/Hackathon/Hack_${HACK_DATE}.md" <<EOT
+# Hackathon
+
+## Hackathon Topics
+EOT
+else
+  echo "Hackathon Notes already created"
+fi
