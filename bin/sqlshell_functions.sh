@@ -11,5 +11,6 @@ function connect-sqlshell {
   JDBC_URL=$(kubectl -n ${NAMESPACE} get splicedbcluster ${SPLICEDB} -o json | jq -r '.status.urls.jdbc')
   DB_USER=$(kubectl -n ${NAMESPACE} get splicedbcluster ${SPLICEDB} -o json | jq -r '.spec.global.splice.user')
   DB_PASS=$(kubectl -n ${NAMESPACE} get splicedbcluster ${SPLICEDB} -o json | jq -r '.spec.global.splice.password')
-  sqlshell -U "${JDBC_URL};user=${DB_USER};password=${DB_PASS}"
+  # sqlshell -U "${JDBC_URL};user=${DB_USER};password=${DB_PASS}"
+  sqlline -u "${JDBC_URL}" -n ${DB_USER} -p ${DB_PASS}
 }

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Purpose,Values='BuildDocker'" --profile splice-nonprod | jq -r '.Reservations[].Instances[].PublicIpAddress')
+ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null ec2-user@${INSTANCE_IP}
+

@@ -1,0 +1,91 @@
+#!/bin/bash
+# The storage location for the downloaded client version is /usr/local/helmfile/{version}/
+
+# gh release list --repo roboll/helmfile
+# GH REQUIRES AUTH LOGIN currently, that is annoying, we can CURL the same information
+# curl -Ls https://api.github.com/repos/roboll/helmfile/releases | jq -r '.[].tag_name' # <- List all versions
+# curl -Ls https://api.github.com/repos/roboll/helmfile/releases/latest | jq -r '.tag_name' # <- Get LATEST version
+
+
+set -o pipefail
+
+VERSION=$(gh release list --repo roboll/helmfile --limit 1 | cut -f3)
+
+readonly program="$(basename "$0")"
+verbose=0
+
+usage() {
+  echo "
+    This script downloads the specified helmfile version and symlinks it into /usr/local/bin/
+    usage: $program
+    options:
+      -l, --list                    List available versions
+      -v, --version                 Specify the version to download
+      -h, --help                    Show this help.
+  " | sed -E 's/^ {4}//'
+}
+
+versionlist() {
+    echo "VERSIONS"
+    gh release list --repo roboll/helmfile --limit 20
+}
+
+while getopts ":v:hl" opt; do
+   case $opt in
+      v|--version)
+         VERSION="${OPTARG}"
+         ;;
+      l|--list)
+         versionlist
+	 exit 0
+         ;;
+      h|--help)
+	 usage
+         exit 1
+         ;;
+   esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${VERSION} ]]; then
+	usage
+	exit 1
+fi
+
+echo "Installing/Activating ${VERSION}..."
+
+if [ ! -d "/usr/local/helmfile" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/helmfile
+  sudo chown ${MY_LOGON}:admin /usr/local/helmfile
+fi;
+
+https://github.com/roboll/helmfile/releases/download/v0.139.6/helmfile_linux_amd64
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+fi
+LINK_TARGET="/usr/local/helmfile/${VERSION}/helmfile_${TARGET_OS}_amd64"
+
+if [ ! -d "/usr/local/helmfile/${VERSION}" ]; then
+  mkdir -p "/usr/local/helmfile/${VERSION}"
+
+  # https://github.com/roboll/helmfile/releases/download/v0.139.6/helmfile_linux_amd64
+  url="https://github.com/roboll/helmfile/releases/download/${VERSION}/helmfile_${TARGET_OS}_amd64"
+  dl_name="/usr/local/helmfile/${VERSION}/helmfile_${TARGET_OS}_amd64"
+  curl -Ls ${url} -o ${dl_name}
+fi
+
+if [ -f "${LINK_TARGET}" ]; then
+  chmod 775 "${LINK_TARGET}"
+fi
+if [ -L "/usr/local/bin/helmfile" ] || [ -f "/usr/local/bin/helmfile" ]; then
+  rm "/usr/local/bin/helmfile"
+fi
+ln -s "${LINK_TARGET}" "/usr/local/bin/helmfile"
+
+helmfile version
+

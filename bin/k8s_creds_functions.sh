@@ -3,7 +3,7 @@ function get-az-creds {
   local RG=$(az group show --name ${SPLICE_ENV} | jq -r .name)
   if [[ "${RG}" == "${SPLICE_ENV}" ]]; then
     if which kubectl >/dev/null 2>&1; then
-      az aks get-credentials --resource-group ${SPLICE_ENV} --name ${SPLICE_ENV} --overwrite-existing --file ~/.kube/config.${SPLICE_ENV} > /dev/null 2>&1
+      az aks get-credentials --admin --resource-group ${SPLICE_ENV} --name ${SPLICE_ENV}-aks --overwrite-existing --file ~/.kube/config.${SPLICE_ENV} > /dev/null 2>&1
       local KUBECONF=~/.kube/config.${SPLICE_ENV}
       chmod 600 ~/.kube/config.${SPLICE_ENV}
       KUBECONFIG="${KUBECONF}"

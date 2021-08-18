@@ -80,3 +80,4 @@ ls -Alrth ${script_name}
 
 # https://gist.github.com/m-radzikowski/53e0b39e9a59a1518990e76c2bff8038
 # https://gist.githubusercontent.com/m-radzikowski/53e0b39e9a59a1518990e76c2bff8038/raw/bc0255e3e9ca846d311bf542521b9212747b59b4/script-template.sh
+# Also check: https://github.com/pforret/bashew/blob/master/template/normal.sh
