@@ -2,7 +2,7 @@
 
 export VAULT_ADDR=http://127.0.0.1:8200/
 export VAULT_FORMAT=json
-CONTAINER_NAME=splice_vault
+CONTAINER_NAME=alteryx_vault
 
 if [ ! "$(docker ps -q -f name=${CONTAINER_NAME})" ]; then
     if [ "$(docker ps -aq -f status=exited -f name=${CONTAINER_NAME})" ]; then
@@ -10,7 +10,7 @@ if [ ! "$(docker ps -q -f name=${CONTAINER_NAME})" ]; then
         docker rm ${CONTAINER_NAME}
     fi
     # run your container
-    docker run -d --name ${CONTAINER_NAME} --cap-add=IPC_LOCK -p 8200:8200 -v splice_vault_plugins:/vault/plugins -v splice_vault_logs:/vault/logs -v splice_vault_config:/vault/config -v splice_vault_file:/vault/file -e 'VAULT_LOCAL_CONFIG={"api_addr": "http://127.0.0.1:8200","plugin_directory": "/vault/plugins","listener": [{"tcp":{"address": "0.0.0.0:8200","tls_disable": 1}}],"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}' vault server -log-level=trace
+    docker run -d --name ${CONTAINER_NAME} --cap-add=IPC_LOCK -p 8200:8200 -v alteryx_vault_plugins:/vault/plugins -v alteryx_vault_logs:/vault/logs -v alteryx_vault_config:/vault/config -v alteryx_vault_file:/vault/file -e 'VAULT_LOCAL_CONFIG={"api_addr": "http://127.0.0.1:8200","plugin_directory": "/vault/plugins","listener": [{"tcp":{"address": "0.0.0.0:8200","tls_disable": 1}}],"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}' vault server -log-level=trace
     echo "waiting for container to initialize..."
     sleep 10s
 fi
@@ -35,26 +35,27 @@ if [ "${VAULT_INITIALIZED}" == "false" ]; then
   echo "Unseal Key 5: ${FIFTH_KEY}"
 
   ACCOUNT=$(whoami)
-  security add-generic-password -a "${ACCOUNT}" -s "unseal_root" -w "${ROOT_KEY}" automation.keychain-db  
-  security add-generic-password -a "${ACCOUNT}" -s "unseal_first" -w "${FIRST_KEY}" automation.keychain-db  
-  security add-generic-password -a "${ACCOUNT}" -s "unseal_second" -w "${SECOND_KEY}" automation.keychain-db  
-  security add-generic-password -a "${ACCOUNT}" -s "unseal_third" -w "${THIRD_KEY}" automation.keychain-db  
-  security add-generic-password -a "${ACCOUNT}" -s "unseal_fourth" -w "${FOURTH_KEY}" automation.keychain-db  
-  security add-generic-password -a "${ACCOUNT}" -s "unseal_fifth" -w "${FIFTH_KEY}" automation.keychain-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_root" -w "${ROOT_KEY}" automation-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_first" -w "${FIRST_KEY}" automation-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_second" -w "${SECOND_KEY}" automation-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_third" -w "${THIRD_KEY}" automation-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_fourth" -w "${FOURTH_KEY}" automation-db  
+  security add-generic-password -a "${ACCOUNT}" -s "unseal_fifth" -w "${FIFTH_KEY}" automation-db  
 
   echo ${ROOT_KEY} > ~/.vault-token
   chmod 600 ~/.vault-token
   vault operator unseal ${FIRST_KEY}
   vault operator unseal ${SECOND_KEY}
   vault operator unseal ${THIRD_KEY}
-  vault secrets enable -path=secret/ kv
+  vault secrets enable -path=secret/ kv-v2
+  vault kv enable-versioning secret/
 else
   VAULT_SEALED=$(vault status -format=json | jq '.sealed')
   if [ "${VAULT_SEALED}" == "true" ]; then
     echo "Need to unseal"
-    FIRST_KEY=$(security find-generic-password -l "unseal_first" -w automation.keychain-db)
-    SECOND_KEY=$(security find-generic-password -l "unseal_second" -w automation.keychain-db)
-    THIRD_KEY=$(security find-generic-password -l "unseal_third" -w automation.keychain-db)
+    FIRST_KEY=$(security find-generic-password -l "unseal_first" -w automation-db)
+    SECOND_KEY=$(security find-generic-password -l "unseal_second" -w automation-db)
+    THIRD_KEY=$(security find-generic-password -l "unseal_third" -w automation-db)
     vault operator unseal ${FIRST_KEY}
     vault operator unseal ${SECOND_KEY}
     vault operator unseal ${THIRD_KEY}

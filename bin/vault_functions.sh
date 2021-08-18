@@ -24,7 +24,7 @@ function auth-vault {
           unset AWS_PROFILE
           echo "Authentication successful"
 	  echo "Storing TOKEN in the Automation Keyring"
-          NOOUT=$(security add-generic-password -U -a $(whoami) -s "build_vault_token" -w "${AUTH_TOKEN}" automation.keychain-db)
+          NOOUT=$(security add-generic-password -U -a $(whoami) -s "build_vault_token" -w "${AUTH_TOKEN}" automation-db)
           switch-vault build
           UPDATED_TOKEN=1
         else
@@ -53,8 +53,8 @@ function switch-vault {
   fi
 
   echo "Switching to ${WHICH_VAULT}"
-  export VAULT_ADDR=$(security find-generic-password -l "${WHICH_VAULT}_vault_addr" -w automation.keychain-db)
-  export VAULT_TOKEN=$(security find-generic-password -l "${WHICH_VAULT}_vault_token" -w automation.keychain-db)
+  export VAULT_ADDR=$(security find-generic-password -l "${WHICH_VAULT}_vault_addr" -w automation-db)
+  export VAULT_TOKEN=$(security find-generic-password -l "${WHICH_VAULT}_vault_token" -w automation-db)
   env | grep VAULT | grep -v TOKEN
   echo -n "Value in secret/vaultname: "
   vault kv get secret/vaultname | jq -r '.data.data.value'
@@ -66,7 +66,7 @@ function test-jenkins-token {
   export VAULT_TOKEN=$(vault kv get -format=table -field=token secret/team/vault_jenkins)
   JENKINS=$(vault token lookup | jq -r ${TKLIST_JQFORMAT})
   WHICH_VAULT=build
-  export VAULT_TOKEN=$(security find-generic-password -l "${WHICH_VAULT}_vault_token" -w automation.keychain-db)
+  export VAULT_TOKEN=$(security find-generic-password -l "${WHICH_VAULT}_vault_token" -w automation-db)
   CMAAHS=$(vault token lookup | jq -r ${TKLISTNH_JQFORMAT})
   echo "${JENKINS}\n${CMAAHS}" | column -t
 }

@@ -1,4 +1,4 @@
-$manifest = Get-Content /Users/cmaahs/tmp/new-operator-manifest.yaml
+$manifest = Get-Content /Users/christopher.maahs/tmp/new-operator-manifest.yaml
 
 $fileData = ""
 $haveFileName = $false

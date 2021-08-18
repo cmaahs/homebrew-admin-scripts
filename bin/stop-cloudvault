@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-docker kill splice_vault && \
-docker rm splice_vault
+docker kill alteryx_vault && \
+docker rm alteryx_vault

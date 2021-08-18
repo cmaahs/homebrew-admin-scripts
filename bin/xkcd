@@ -10,11 +10,12 @@ DETAIL=$(curl -s "https://xkcd.com/" | grep -A2 'Permanent link')
 for i in ${DETAIL}; do
   LINKS+=("${i}")
 done
-NUM=$(echo ${LINKS[5]} | cut -d'/' -f4)
+NUM=$(echo ${LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
 
 if [[ "${STRIP}" == "LATEST" ]]; then
   if [[ "${CURRENT_NUM}" != "${NUM}" ]]; then
-    echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${LINKS[11]})" | mdcat
+    WEBLINK=$(echo ${LINKS[14]} | cut -d'"' -f2)
+    echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${WEBLINK})" | mdcat
     echo ${NUM} > ~/.xkcd
   fi
 fi
@@ -27,7 +28,8 @@ if [[ "${STRIP}" == "random" ]]; then
   for i in ${DETAIL}; do
     RND_LINKS+=("${i}")
   done
-  NUM=$(echo ${RND_LINKS[5]} | cut -d'/' -f4)
-  echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${RND_LINKS[11]})" | mdcat
+  NUM=$(echo ${RND_LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
+  WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
+  echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${WEBLINK})" | mdcat
 fi
 

@@ -2,7 +2,7 @@ class DockerOps < Formula
   desc "This is a set of scripts revolving around the startup of local Docker Ops images."
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.4"
+  version "0.0.5"
 
   def install
     bin.install "bin/start-cloudvault"
