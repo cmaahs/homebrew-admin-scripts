@@ -6,7 +6,7 @@ GUID=$(uuidgen)
 GUID_12=$(uuidgen)
 RUN_DMC=${2}
 
-cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
+cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
 {
   "Profiles": [
     {
@@ -21,7 +21,7 @@ cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
 }
 EOT
 
-cat > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<EOT
+cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<EOT
 {
   "Profiles": [
     {
@@ -41,11 +41,11 @@ EOT
 # moving this to the itemrp setup instead.
 #if [[ -n ${RUN_DMC} ]]; then
 #    QUERY=".Profiles[0].\"Initial Text\" += \"${RUN_DMC}\""
-#    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
-#    cat <<< $(jq ${QUERY} ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}) > ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
+#    cat <<< $(jq ${QUERY} ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+#    cat <<< $(jq ${QUERY} ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}) > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
 #fi
 
-ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
+ls -1 ~/Library/Application\ Support/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
 
 # Add itermp ${WINDOW_TITLE} - Tri Pane
 

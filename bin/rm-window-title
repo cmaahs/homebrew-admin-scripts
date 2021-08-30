@@ -3,11 +3,11 @@
 WINDOW_TITLE=${1}
 WINDOW_TITLE_12=${WINDOW_TITLE}-12
 
-if [[ -f ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE} ]]; then
-    rm ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+if [[ -f ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} ]]; then
+    rm ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE}
 fi
-if [[ -f ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} ]]; then
-    rm ~/Library/ApplicationSupport/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
+if [[ -f ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} ]]; then
+    rm ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
 fi
 if [[ -f ~/.itermp/${WINDOW_TITLE}.json ]]; then
     rm ~/.itermp/${WINDOW_TITLE}.json
@@ -16,4 +16,4 @@ if [[ -f ~/.itermp/select/${WINDOW_TITLE} ]]; then
     rm ~/.itermp/select/${WINDOW_TITLE}
 fi
 
-ls -1 ~/Library/ApplicationSupport/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
+ls -1 ~/Library/Application\ Support/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
