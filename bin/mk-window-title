@@ -25,7 +25,7 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EO
             {
               "title" : "Run Command",
               "action" : 4,
-              "parameter" : "\\1"
+              "parameter" : "\\\\1"
             }
           ]
         }
@@ -55,7 +55,7 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <
             {
               "title" : "Run Command",
               "action" : 4,
-              "parameter" : "\\1"
+              "parameter" : "\\\\1"
             }
           ]
         }
