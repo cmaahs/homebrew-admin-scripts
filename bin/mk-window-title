@@ -15,7 +15,21 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EO
       "Use Custom Window Title" : true,
       "Guid" : "${GUID}",
       "Log Directory" : "\/Users\/christopher.maahs\/Work\/${WINDOW_TITLE}\/log\/",
-      "Automatically Log" : true
+      "Automatically Log" : true,
+      "Smart Selection Rules" : [
+        {
+          "notes" : "CMD URL",
+          "precision" : "very_low",
+          "regex" : "bash:(.*)$",
+          "actions" : [
+            {
+              "title" : "Run Command",
+              "action" : 4,
+              "parameter" : "\\1"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
@@ -31,7 +45,21 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <
       "Use Custom Window Title" : true,
       "Guid" : "${GUID_12}",
       "Log Directory" : "\/Users\/christopher.maahs\/Work\/${WINDOW_TITLE}\/log\/",
-      "Automatically Log" : true
+      "Automatically Log" : true,
+      "Smart Selection Rules" : [
+        {
+          "notes" : "CMD URL",
+          "precision" : "very_low",
+          "regex" : "bash:(.*)$",
+          "actions" : [
+            {
+              "title" : "Run Command",
+              "action" : 4,
+              "parameter" : "\\1"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
