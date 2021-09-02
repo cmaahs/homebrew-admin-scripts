@@ -20,7 +20,7 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EO
         {
           "notes" : "CMD URL",
           "precision" : "very_low",
-          "regex" : "bash:(.*)$",
+          "regex" : "<bash:(.*)>",
           "actions" : [
             {
               "title" : "Run Command",
