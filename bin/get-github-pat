@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+security find-generic-password -l "cmaahs-github-pat" -w automation-db

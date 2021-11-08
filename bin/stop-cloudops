@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-docker kill splice_cloud_tools && \
-docker rm splice_cloud_tools
+docker kill alteryx_cloud_tools && \
+docker rm alteryx_cloud_tools

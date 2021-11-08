@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
 
-function connect_k8s_vault {
+function connect-k8s-vault {
 
-    AWSPROFILE=${AWS_PROFILE:-splice-nonprod}
-    CSP=$(kubectl -n splice-system get secret/vault-key-store -o json | jq -r '.data.CLOUD_PROVIDER' | base64 -d)
-    vaultname="$(kubectl -n splice-system get secret vault-key-store -o json | jq -r .data.ENVIRONMENT | base64 -d | tr -d '-')vault"
-    SPLICE_ENV=$(kubectl -n splice-system get secret vault-key-store -o json | jq -r .data.ENVIRONMENT | base64 -d)
-    export VAULT_TOKEN=$(kubectl -n splice-system get secrets vault-keys -o json | jq -r '.data."vault-root-token"' | base64 -d)
-    nohup kubectl port-forward  $(kubectl get vaultserver/vault -n splice-system -o json | jq -r '.status.vaultStatus.active') 8200:8200 -n splice-system >/dev/null 2>&1 &
+    FALKOR_ENV=${1-falkor-dev}
+    FALKOR_SECRET_PREFIX=${2}
+    if [[ -z ${FALKOR_SECRET_PREFIX} ]]; then
+        FALKOR_SECRET_PREFIX=${FALKOR_ENV}
+    fi
+    export VAULT_TOKEN=$(aws --region us-west-2 secretsmanager get-secret-value --secret-id "${FALKOR_SECRET_PREFIX}-vault-token" | jq -r '.SecretString' | base64 -d | jq -r '.root_token')
+    nohup kubectl -n vault port-forward svc/vault-active 8200:8200 >/dev/null 2>&1 &
     export PORT_FORWARD_PID=$!
     export VAULT_SKIP_VERIFY="true"
     export VAULT_ADDR='https://127.0.0.1:8200'
-    sleep 2
-    vault kv list secret
+    sleep 5
+    SECRET_PATH=$(vault secrets list | jq '. | keys' | jq -r '.[]' | grep '\-kv' | sed 's/\///')
+    echo "SECRET_PATH: ${SECRET_PATH}"
+    vault kv list ${SECRET_PATH}
 }
 
-function disconnect_k8s_vault {
+function disconnect-k8s-vault {
 
     kill -9 $PORT_FORWARD_PID
-    export VAULT_ADDR=https://vault.build.splicemachine-dev.io
+    unset VAULT_ADDR
     unset VAULT_SKIP_VERIFY
     unset VAULT_TOKEN
     unset PORT_FORWARD_PID
+    unset SECRET_PATH
 }

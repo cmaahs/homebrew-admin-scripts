@@ -1,3 +1,3 @@
-VAULT_DOCKER_IP=$(docker inspect splice_vault | jq -r '.[0].NetworkSettings.IPAddress')
+VAULT_DOCKER_IP=$(docker inspect alteryx_vault | jq -r '.[0].NetworkSettings.IPAddress')
 docker run -d --cap-add NET_ADMIN --hostname ops_personaltools --device /dev/net/tun -p 9122:22 -e USER_NAME=`whoami` -e VAULT_DOCKER_IP=`echo "${VAULT_DOCKER_IP}"` -v `echo "${HOME}/src"`:/home/src -v `echo "${HOME}/Worktrees"`:/home/Worktrees -v personal_home:/home --name cmaahs_tools cmaahs/personal_tools:0.0.2
 

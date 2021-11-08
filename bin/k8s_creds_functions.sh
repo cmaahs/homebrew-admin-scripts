@@ -15,18 +15,16 @@ function get-az-creds {
 }
 
 function get-aws-creds {
-  local SPLICE_ENV=${1-nonprod-eks-dev1}
-  local ENV_SPLIT=("${(@s/-/)SPLICE_ENV}")
-  local ENV_ACCT=${ENV_SPLIT[1]}
-  local PROFILE="splice-${ENV_ACCT}"
-  local REGION=${2-us-east-1}
+  local ALTERYX_ENV=${1-alteryx-sub-highfive-apri-dev}
+  local ALTERYX_CLUSTER=${2-high-five-apri-dev-moth}
+  local REGION=${3-us-west-2}
 
-  local CLUSTER=$(aws eks --region ${REGION} --profile ${PROFILE} describe-cluster --name ${SPLICE_ENV} | jq -r .cluster.name)
-  if [[ "${CLUSTER}" == "${SPLICE_ENV}" ]]; then
+  local CLUSTER=$(aws eks --region ${REGION} --profile ${ALTERYX_ENV} describe-cluster --name ${ALTERYX_CLUSTER} | jq -r .cluster.name)
+  if [[ "${CLUSTER}" == "${ALTERYX_CLUSTER}" ]]; then
     if which kubectl >/dev/null 2>&1; then
-      aws eks --region ${REGION} --profile ${PROFILE} update-kubeconfig --name ${SPLICE_ENV} --alias ${SPLICE_ENV} --kubeconfig ~/.kube/config.${SPLICE_ENV} > /dev/null 2>&1
-      local KUBECONF=~/.kube/config.${SPLICE_ENV}
-      chmod 600 ~/.kube/config.${SPLICE_ENV}
+      aws eks --region ${REGION} --profile ${ALTERYX_ENV} update-kubeconfig --name ${ALTERYX_CLUSTER} --alias ${ALTERYX_CLUSTER} --kubeconfig ~/.kube/config.${ALTERYX_CLUSTER} > /dev/null 2>&1
+      local KUBECONF=~/.kube/config.${ALTERYX_CLUSTER}
+      chmod 600 ~/.kube/config.${ALTERYX_CLUSTER}
       KUBECONFIG="${KUBECONF}"
       export KUBECONFIG
     else
