@@ -26,6 +26,7 @@ function cdwt {
   if [[ -n ${WTPATH} ]]; then
     cd ${HOME}/Worktrees/${WTPATH}
     export BRANCH=$(git branch --show-current)
+    export JIRA_ISSUE=$(echo ${BRANCH} | cut -d'/' -f1)
   else
     echo -e "${YELLOW}No selection made${NONE}"
   fi
