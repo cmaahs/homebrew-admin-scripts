@@ -3,7 +3,7 @@ function switch-jira {
 local WHICH_JIRA=$1
 
 if [[ -z ${WHICH_JIRA} ]]; then
-  WHICH_JIRA=dbaas
+  WHICH_JIRA=alteryx
 fi
 
 
@@ -14,7 +14,16 @@ case "${WHICH_JIRA}" in
     "dbaas")
       jira sprint
       ;;
+    "alteryx")
+      jira sprint
+      ;;
     "pw")
+      jira mine
+      ;;
+    "aj")
+      jira mine
+      ;;
+    "gjr")
       jira mine
       ;;
   esac
