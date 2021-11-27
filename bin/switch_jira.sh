@@ -26,5 +26,8 @@ case "${WHICH_JIRA}" in
     "gjr")
       jira mine
       ;;
+    "gt")
+      jira mine
+      ;;
   esac
 }
