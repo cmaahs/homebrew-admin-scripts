@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.68"
+  version "0.0.69"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -53,6 +53,8 @@ class UtilScripts < Formula
     bin.install "bin/start-bind9"
     bin.install "bin/stop-bind9"
     bin.install "bin/get-github-pat"
+    bin.install "bin/get-gitlab-api-pat"
+    bin.install "bin/helm_ecr_functions.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"

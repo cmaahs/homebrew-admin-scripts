@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+security find-generic-password -l "alteryx-gitlab-api-pat" -w automation-db
