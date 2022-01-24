@@ -16,6 +16,19 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EO
       "Guid" : "${GUID}",
       "Log Directory" : "\/Users\/christopher.maahs\/Work\/${WINDOW_TITLE}\/log\/",
       "Automatically Log" : true,
+      "Triggers" : [
+        {
+          "regex" : "^Enter passphrase.*rsa:$",
+          "action" : "PasswordTrigger",
+          "parameter" : "_id_rsa_PassPhrase"
+        },
+        {
+          "action" : "PasswordTrigger",
+          "parameter" : "Master Password",
+          "regex" : "^Master Password",
+          "partial" : true
+        }
+      ],
       "Smart Selection Rules" : [
         {
           "notes" : "CMD URL",
