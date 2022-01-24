@@ -21,12 +21,6 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EO
           "regex" : "^Enter passphrase.*rsa:$",
           "action" : "PasswordTrigger",
           "parameter" : "_id_rsa_PassPhrase"
-        },
-        {
-          "action" : "PasswordTrigger",
-          "parameter" : "Master Password",
-          "regex" : "^? Master password",
-          "partial" : true
         }
       ],
       "Smart Selection Rules" : [
