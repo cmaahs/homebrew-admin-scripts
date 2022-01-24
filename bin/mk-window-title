@@ -25,7 +25,7 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EO
         {
           "action" : "PasswordTrigger",
           "parameter" : "Master Password",
-          "regex" : "^Master Password",
+          "regex" : "^? Master password",
           "partial" : true
         }
       ],
