@@ -4,7 +4,8 @@ WINDOW_TITLE=${1:-$(new-codename)}
 WINDOW_TITLE_12=${WINDOW_TITLE}-12
 GUID=$(uuidgen)
 GUID_12=$(uuidgen)
-RUN_DMC=${2}
+LOG_WINDOWS=${2-false}
+RUN_DMC=${3}
 
 cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
 {
@@ -84,6 +85,7 @@ ls -1 ~/Library/Application\ Support/iTerm2/DynamicProfiles | grep ${WINDOW_TITL
 
 # Add itermp ${WINDOW_TITLE} - Tri Pane
 
+if [[ "${LOG_WINDOWS}" == "true" ]]; then
 cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
 {
   "fullscreen": false,
@@ -107,21 +109,36 @@ cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
   }
 }
 EOT
+else
+cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
+{
+  "fullscreen": false,
+  "rows": 120,
+  "columns": 400,
+  "profile": "${WINDOW_TITLE}",
+  "command": "set-title-tab work",
+}
+EOT
+fi
 
 if [[ -n ${RUN_DMC} ]]; then
     QUERY=".command = \"set-title-tab work; ${RUN_DMC}\""
     cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
-    QUERY=".split.command = \"set-title-tab watcher; ${RUN_DMC}\""
-    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
-    QUERY=".split.split.command = \"set-title-tab processing; ${RUN_DMC}\""
-    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    if [[ "${LOG_WINDOWS}" == "true" ]]; then
+      QUERY=".split.command = \"set-title-tab watcher; ${RUN_DMC}\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+      QUERY=".split.split.command = \"set-title-tab processing; ${RUN_DMC}\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    fi
 else
-    QUERY=".command = \"set-title-tab work;\""
+    QUERY=".command = \"set-title-tab work; cd ~/Work/${WINDOW_TITLE}\""
     cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
-    QUERY=".split.command = \"set-title-tab watcher;\""
-    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
-    QUERY=".split.split.command = \"set-title-tab processing;\""
-    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    if [[ "${LOG_WINDOWS}" == "true" ]]; then
+      QUERY=".split.command = \"set-title-tab watcher; cd ~/Work/${WINDOW_TITLE}\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+      QUERY=".split.split.command = \"set-title-tab processing; cd ~/Work/${WINDOW_TITLE}\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    fi
 fi
 
 touch ~/.itermp/select/${WINDOW_TITLE}
