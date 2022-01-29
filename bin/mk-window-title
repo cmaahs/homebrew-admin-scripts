@@ -4,7 +4,7 @@ WINDOW_TITLE=${1:-$(new-codename)}
 WINDOW_TITLE_12=${WINDOW_TITLE}-12
 GUID=$(uuidgen)
 GUID_12=$(uuidgen)
-LOG_WINDOWS=${2-false}
+LOG_WINDOWS=${2:-false}
 RUN_DMC=${3}
 
 cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
@@ -116,7 +116,7 @@ cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
   "rows": 120,
   "columns": 400,
   "profile": "${WINDOW_TITLE}",
-  "command": "set-title-tab work",
+  "command": "set-title-tab work"
 }
 EOT
 fi
@@ -131,12 +131,12 @@ if [[ -n ${RUN_DMC} ]]; then
       cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
     fi
 else
-    QUERY=".command = \"set-title-tab work; cd ~/Work/${WINDOW_TITLE}\""
+    QUERY=".command = \"set-title-tab work; cd ~/Work/${WINDOW_TITLE};\"" 
     cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
     if [[ "${LOG_WINDOWS}" == "true" ]]; then
-      QUERY=".split.command = \"set-title-tab watcher; cd ~/Work/${WINDOW_TITLE}\""
+      QUERY=".split.command = \"set-title-tab watcher; cd ~/Work/${WINDOW_TITLE};\""
       cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
-      QUERY=".split.split.command = \"set-title-tab processing; cd ~/Work/${WINDOW_TITLE}\""
+      QUERY=".split.split.command = \"set-title-tab processing; cd ~/Work/${WINDOW_TITLE};\""
       cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
     fi
 fi
