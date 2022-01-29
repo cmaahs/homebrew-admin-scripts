@@ -114,7 +114,7 @@ cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
 {
   "fullscreen": false,
   "rows": 120,
-  "columns": 400,
+  "columns": 250,
   "profile": "${WINDOW_TITLE}",
   "command": "set-title-tab work"
 }
