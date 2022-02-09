@@ -8,3 +8,7 @@ function set-terminal-title () {
 set-title-both   () { set-terminal-title 0 $@; }
 set-title-tab    () { ITERM_TAB=$@; set-terminal-title 1 $@; }
 set-title-window () { set-terminal-title 2 $@; }
+set-tab-title-pwd () { 
+  TITLE=${1:-$(basename ${PWD})}
+  set-terminal-title 1 ${TITLE}
+}

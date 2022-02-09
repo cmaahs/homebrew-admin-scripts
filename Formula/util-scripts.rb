@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.77"
+  version "0.0.78"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -97,6 +97,7 @@ class UtilScripts < Formula
       iterm-set-titles.sh contains the following functions:
         - set-title-window
         - set-title-tab
+        - set-tab-title-pwd
       worktree_functions.sh contains the following functions:
         - mkwt <branchname> (branchname needs to be in the form of JIRANUM/description)
         - cdwt (prompts for a worktree to change to)
