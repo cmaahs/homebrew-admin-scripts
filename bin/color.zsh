@@ -1,5 +1,18 @@
 #!/bin/zsh
 # http://unix.stackexchange.com/questions/10823/where-do-my-ansi-escape-codes-go-when-i-pipe-to-another-process-can-i-keep-them
+write-output() {
+  echo -e "$(no-color)${1}"
+}
+write-verbose() {
+  echo -e "$(yellow-text)${1}$(no-color)" >&2
+}
+write-error() {
+  echo -e "$(red-text)${1}$(no-color)" >&2
+}
+write-highlight() {
+  echo -e "$(orange-text)${1}$(no-color)" >&2
+}
+
 pickForeground(){
   printf '\x1b[38;2;%s;%s;%sm' $1 $2 $3
 }
