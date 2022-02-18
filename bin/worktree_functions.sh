@@ -48,6 +48,23 @@ function mkwt {
   fi
 }
 
+function mkwtfrom {
+  JIRA=${1}
+  BRANCH=${2}
+  SOURCE_BRANCH=${3}
+  if [[ -z ${JIRA} || -z ${BRANCH} || -z ${SOURCE_BRANCH} ]]; then
+    echo -e "${YELLOW}Need JIRA (DBAAS-nnnn) and BRANCH (short name) and SOURCE_BRANCH (commit from)${NONE}"; exit 1
+  fi
+  YELLOW='\033[01;33m'
+  NONE='\033[0m'
+  REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
+  if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
+    git worktree add -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2} ${SOURCE_BRANCH}
+  else
+    echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
+  fi
+}
+
 function mkwttrack {
   JIRA=${1}
   BRANCH=${2}
