@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+git fetch; git status; git pull
+
+LOCAL_TAGS=$(git show-ref --tags)
+REMOTE_TAGS=$(git ls-remote --tags origin | sed 's/\t/ /g')
+BAD_TAGS=$(diff -c <(echo "${LOCAL_TAGS}") <(echo "${REMOTE_TAGS}") | grep 'refs' | grep -v '^ ' | cut -d' ' -f3 | sort -u | wc -l | awk '{print $1}')
+if [[ "${BAD_TAGS}" != "0" ]]; then
+  DO_IT=$(echo "Yes\nNo" | fzf --prompt "Reset TAGs to origin? "
+  if [[ "${DO_IT}" == "Yes" ]]; then
+    git tag -d $(git tag)
+    git fetch --tags
+  fi
+fi
+
