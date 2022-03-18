@@ -8,6 +8,7 @@ function cdwtp {
   PARENT=$(git worktree list | head -n 1 | awk '{ print $1 }')
   if [[ -n ${PARENT} ]]; then
     cd ${PARENT}
+    export BRANCH=$(git branch --show-current)
   else
     echo -e "${YELLOW}Couldn't determine parent path${NONE}"
   fi
