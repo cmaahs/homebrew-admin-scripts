@@ -1,6 +1,10 @@
 #!/usr/bin/env zsh
 
-git fetch; git status; git pull
+FETCH_OUTPUT=$(git fetch)
+echo ${FETCH_OUTPUT}
+git status
+git pull
+
 
 LOCAL_TAGS=$(git show-ref --tags)
 REMOTE_TAGS=$(git ls-remote --tags origin | sed 's/\t/ /g')
@@ -13,3 +17,15 @@ if [[ "${BAD_TAGS}" != "0" ]]; then
   fi
 fi
 
+DELETED_BRANCHES=($(echo ${FETCH_OUTPUT} | grep '\[deleted\]' | cut -d'/' -f 2-))
+
+for DB in ${DELETED_BRANCHES}; do
+  DO_IT=$(echo "Yes\nNo" | fzf --prompt "DELETE 'local' branch ${DB} ?")
+  if [[ "${DO_IT}" == "Yes" ]]; then
+    git branch -d $(DB)
+  fi
+done
+
+# From https://github.com/Maahsome/gitlab-go
+# - [deleted]         (none)     -> origin/GT-3/add-delete-calls-mock
+# - [deleted]         (none)     -> origin/GT-4/add-delete-calls
