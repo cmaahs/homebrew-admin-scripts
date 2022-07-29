@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.88"
+  version "0.0.89"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -58,6 +58,8 @@ class UtilScripts < Formula
     bin.install "bin/bw_functions.sh"
     bin.install "bin/bash_functions.sh"
     bin.install "bin/git-fetch-status-pull"
+    bin.install "bin/gcp_functions.sh"
+    bin.install "bin/gcp-switch-account"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
@@ -73,6 +75,9 @@ class UtilScripts < Formula
         - git-add-modified
         - config-add-modified
           * used to add all the "modified" files, config is the dotfiles alias
+      gcp_functions.sh contains teh following functions:
+        - gcp-switch-project
+          * used to switch projects using an ENV variable
       sqlshell_functions.sh contains the following function:
         - connect-sqlshell
       k8s-vault-function.sh contains the following functions:
@@ -107,3 +112,4 @@ class UtilScripts < Formula
   EOS
   end
 end
+

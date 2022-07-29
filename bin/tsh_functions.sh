@@ -1,10 +1,10 @@
 function tsh-connect {
-  declare -A endpoints=([teleport.remote-access.falkor.rocks]=teleport.remote-access.falkor.rocks [teleport.remote-access.alteryxcloud.com]=teleport.remote-access.alteryxcloud.com)
+  declare -A endpoints=([teleport.remote-access.falkor.rocks]=teleport.remote-access.falkor.rocks [teleport.remote-access.alteryxcloud.com]=teleport.remote-access.alteryxcloud.com [teleport.bender.rocks]=teleport.bender.rocks)
   NP_PROD=${1-$(echo ${endpoints} | tr ' ' '\n' | fzf)}
   if [[ -v endpoints[${NP_PROD}] ]]; then
     if tsh status > /dev/null 2>&1; then
       echo "Currently connected, please 'tsh logout' first."
-    else 
+    else
       tsh login --proxy=${NP_PROD}:443
     fi
   else
@@ -39,7 +39,8 @@ function tsh-kube-config {
       yq e -i ".contexts[] |= select(.name == \"${CURRENT_CONTEXT}\").name=\"${SHORT_CONTEXT}\"" ${KUBECONFIG}
       yq e -i ".current-context = \"${SHORT_CONTEXT}\"" ${KUBECONFIG}
     fi
-  else 
+  else
     echo "Not currently connected to a TSH proxy, please run 'tsh-connect'"
   fi
 }
+
