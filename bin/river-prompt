@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+OUT=($(cat ~/tmp/riverlevels.json | jq -r '.[] | select(.wt=="Kettle") | .rating'))
+
+echo -n ${OUT}
+

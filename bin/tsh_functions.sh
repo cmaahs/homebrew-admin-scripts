@@ -1,5 +1,22 @@
 function tsh-connect {
-  declare -A endpoints=([teleport.remote-access.falkor.rocks]=teleport.remote-access.falkor.rocks [teleport.remote-access.alteryxcloud.com]=teleport.remote-access.alteryxcloud.com [teleport.bender.rocks]=teleport.bender.rocks)
+  declare -A endpoints=([teleport.bender.rocks]=teleport.bender.rocks [mgmt.alteryxcloud.com]=mgmt.alteryxcloud.com)
+  NP_PROD=${1-$(echo ${endpoints} | tr ' ' '\n' | fzf)}
+  if [[ -v endpoints[${NP_PROD}] ]]; then
+    if tsh status > /dev/null 2>&1; then
+      echo "Currently connected, please 'tsh logout' first."
+    else
+      tsh login --proxy=${NP_PROD}:443
+    fi
+  else
+    echo "Endpoint specified does not match valid endpoints list:"
+    for i in $endpoints; do
+      echo "\t${i}"
+    done
+  fi
+}
+
+function tsh-connect-falkor {
+  declare -A endpoints=([teleport.remote-access.falkor.rocks]=teleport.remote-access.falkor.rocks [teleport.remote-access.alteryxcloud.com]=teleport.remote-access.alteryxcloud.com)
   NP_PROD=${1-$(echo ${endpoints} | tr ' ' '\n' | fzf)}
   if [[ -v endpoints[${NP_PROD}] ]]; then
     if tsh status > /dev/null 2>&1; then

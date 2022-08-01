@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+
+cat ~/tmp/riverlevels.json | jq -r '.[] | select(.wt=="Kettle") | [.reading, .variable, .rating, .name] | @tsv'
+

@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.89"
+  version "0.0.90"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -60,6 +60,11 @@ class UtilScripts < Formula
     bin.install "bin/git-fetch-status-pull"
     bin.install "bin/gcp_functions.sh"
     bin.install "bin/gcp-switch-account"
+    bin.install "bin/decolorize"
+    bin.install "bin/get-riverlevels"
+    bin.install "bin/river-prompt"
+    bin.install "bin/show-riverlevels"
+    bin.install "vim_multi_commands.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
@@ -78,6 +83,9 @@ class UtilScripts < Formula
       gcp_functions.sh contains teh following functions:
         - gcp-switch-project
           * used to switch projects using an ENV variable
+      vim_multi_commands.sh contains th following functions:
+        - vi-all-extension
+          * used to edit ALL items of a single extension, recursively
       sqlshell_functions.sh contains the following function:
         - connect-sqlshell
       k8s-vault-function.sh contains the following functions:

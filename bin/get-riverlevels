@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+curl -Ls "https://maps1.dnr.state.mn.us/cgi-bin/mapserv76?map=RL_MAPFILE&mode=nquery" > ~/tmp/riverlevels.js
+
+cat >> ~/tmp/riverlevels.js <<EOT
+var x = JSON.stringify(riverLevelSites);
+console.log(x);
+EOT
+
+node ~/tmp/riverlevels.js | jq . > ~/tmp/riverlevels.json
+
+cat ~/tmp/riverlevels.json | jq '[ .[]  | if .variable==232 then .variable="ft" else . end | if .variable==262 then .variable="cf/s" else . end ]' | sponge ~/tmp/riverlevels.json
+
