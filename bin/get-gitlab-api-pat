@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-security find-generic-password -l "alteryx-gitlab-api-pat" -w automation-db
+bwca get password --item-name gitlab.alteryx.com-full-api-pat
+

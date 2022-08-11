@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-security find-generic-password -l "github-alteryx-laptop-cli-access" -w automation-db
+bwca get password --item-name github-alteryx-laptop-cli-access
+
