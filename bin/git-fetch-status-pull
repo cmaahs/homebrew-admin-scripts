@@ -13,6 +13,7 @@ if [[ "${BAD_TAGS}" != "0" ]]; then
   if [[ "${DO_IT}" == "Yes" ]]; then
     git tag -d $(git tag)
     git fetch --tags
+    git tag --list | sort --reverse --version-sort | head -n 2
   fi
 fi
 
