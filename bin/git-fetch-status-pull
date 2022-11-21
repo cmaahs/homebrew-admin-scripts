@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-FETCH_OUTPUT=$(git fetch)
+FETCH_OUTPUT=$(git fetch 2>&1)
 echo ${FETCH_OUTPUT}
 git status
 git pull
@@ -13,16 +13,20 @@ if [[ "${BAD_TAGS}" != "0" ]]; then
   if [[ "${DO_IT}" == "Yes" ]]; then
     git tag -d $(git tag)
     git fetch --tags
-    git tag --list | sort --reverse --version-sort | head -n 2
+    LATEST_TAG=$(git tag --list | sort --reverse --version-sort | head -n 1)
+    echo "Latest TAG: ${LATEST_TAG}"
   fi
 fi
 
 DELETED_BRANCHES=($(echo ${FETCH_OUTPUT} | grep '\[deleted\]' | cut -d'/' -f 2-))
 
 for DB in ${DELETED_BRANCHES}; do
-  DO_IT=$(echo "Yes\nNo" | fzf --prompt "DELETE 'local' branch ${DB} ?")
-  if [[ "${DO_IT}" == "Yes" ]]; then
-    git branch -d $(DB)
+  HAVE_BRANCH=$(git branch --list | grep "${DB}$" | wc -l | awk '{ print $1 }')
+  if [[ "${HAVE_BRANCH}" == "1" ]]; then
+    DO_IT=$(echo "Yes\nNo" | fzf --prompt "DELETE 'local' branch ${DB} ?")
+    if [[ "${DO_IT}" == "Yes" ]]; then
+      git branch -d ${DB}
+    fi
   fi
 done
 
