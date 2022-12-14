@@ -1,5 +1,5 @@
 function tsh-connect {
-  declare -A endpoints=([teleport.bender.rocks]=teleport.bender.rocks [mgmt.alteryxcloud.com]=mgmt.alteryxcloud.com)
+  declare -A endpoints=([teleport.bender.rocks]=teleport.bender.rocks [mgmt.alteryxcloud.com]=mgmt.alteryxcloud.com [mgmt-stage.alteryxcloud.com]=mgmt-stage.alteryxcloud.com)
   NP_PROD=${1-$(echo ${endpoints} | tr ' ' '\n' | fzf)}
   if [[ -v endpoints[${NP_PROD}] ]]; then
     if tsh status > /dev/null 2>&1; then

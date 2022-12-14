@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+
+ENVIRONMENT=${1-lowers}
+pushd
+cd ~/dev/futurama/hermes/control-plane/gcp/${ENVIRONMENT}
+gitlab-tool ls -d
+popd
+
