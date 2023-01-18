@@ -41,7 +41,7 @@ function gitlab-export-cicd-variables() {
     echo "Looking up path: ${group_path}"
     GROUP_ID=$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${group_path}" | jq -r '.id')
     if [[ "${GROUP_ID}" != "null" ]]; then
-      VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${GROUP_ID}/variables" | jq -r '.[] | select(.variable_type=="env_var").key'))
+      VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${GROUP_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
       if [[ -n ${VARIABLES} ]]; then
         for v in ${VARIABLES}; do
           VAR_DATA=$(gitlab-get-group-variable ${v} ${group_path})
@@ -58,7 +58,7 @@ function gitlab-export-cicd-variables() {
     else
       local PROJECT_ID=$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${group_path}" | jq -r '.id')
       if [[ "${PROJECT_ID}" != "null" ]]; then
-        VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables" | jq -r '.[] | select(.variable_type=="env_var").key'))
+        VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
         if [[ -n ${VARIABLES} ]]; then
           for v in ${VARIABLES}; do
             VAR_DATA=$(gitlab-get-project-variable ${v} ${group_path})
