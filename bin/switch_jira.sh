@@ -6,7 +6,6 @@ if [[ -z ${WHICH_JIRA} ]]; then
   WHICH_JIRA=alteryx
 fi
 
-
 echo "Switching to ${WHICH_JIRA}"
 cp ~/.jira.d/${WHICH_JIRA}-config ~/.jira.d/config.yml
 
@@ -29,5 +28,24 @@ case "${WHICH_JIRA}" in
     "gt")
       jira mine
       ;;
+    "kt")
+      jira mine
+      ;;
+    "bwca")
+      jira mine
+      ;;
+    "em")
+      jira mine
+      ;;
+    "gg")
+      jira mine
+      ;;
+    "tn")
+      jira mine
+      ;;
+    "vv")
+      jira mine
+      ;;
   esac
 }
+
