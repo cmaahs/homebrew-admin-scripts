@@ -129,7 +129,7 @@ function gitlab-get-variable() {
   pp_encoded=$(echo ${project_path} | sed 's/\//%2F/g')
 
   OUT_DATA=$(gitlab-get-group-variable ${variable_name} ${pp_encoded})
-  if [[ $? -ne 0 ]]; then
+  if [[ "${OUT_DATA}" == "null" ]]; then
     OUT_DATA=$(gitlab-get-project-variable ${variable_name} ${pp_encoded})
     if [[ $? -ne 0 ]]; then
       echo "ERROR: the variable was not found on that path"
