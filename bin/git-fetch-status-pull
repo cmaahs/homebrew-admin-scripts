@@ -1,4 +1,27 @@
 #!/usr/bin/env zsh
+#
+# git-fetch-status-pull
+#
+# alias gfsp='git-fetch-status-pull'
+#
+# This is mostly used to keep the local clone in sync with the origin, outside
+# of just the git fetch; git pull mechanism.
+#
+# git-tag (https://git-scm.com/docs/git-tag) is especially problematic since
+# your local TAGs can diverge quickly when CICD pipelines are doing rolling
+# tagging: v1.2.3 -> v1.2 -> v1, then v1.2.4 -> v1.2 -> v1
+# git fetch and git pull do not care about TAGs, and it is easy for people to
+# overlook, often comparing TAGs locally, not realizing that remote TAGs may
+# have shifted commit ids.  This process looks for drift in TAGs.
+#
+# This also watches for [deleted] branches during the git fetch, and if we have
+# that branch locally, then perform a `-d` safe branch deletion.  This is quite
+# annoying when the popular "squash" is used when merging MR/PRs, since the
+# process checks to see if your commit ids are present in the default branch
+# prior to deletion.  Feel free to crank that thing to `-D` and brute force those
+# branches into nothingness!
+#
+# As they say: YMMV
 
 FETCH_OUTPUT=$(git fetch 2>&1)
 echo ${FETCH_OUTPUT}

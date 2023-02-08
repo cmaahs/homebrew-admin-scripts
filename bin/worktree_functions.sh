@@ -1,7 +1,29 @@
+# worktree_functions.sh
+#
+# This file is meant to be sourced into your current shell.  The naming is meant
+# to be fairly easy to remember.  ls, cd, mk, rm prefixes to 'wt' for worktree.
+#
+# For those unfamiliar with worktrees:
+#
+# https://git-scm.com/docs/git-worktree
+# tldr git-worktree
+#
+# The actual TLDR;
+#
+# git worktrees allow you to create a branch and check it out into a separate
+# directory.  In a time when most tools where git 'unaware', like diffing tools,
+# this was an easy way to have physical directories one could use to compare
+# differences between branches.  It also means you can create and work on a new
+# branch without having to stash and all those hoops.
+
+# lswt - Used to list the worktrees that are created in the current repository
+# directory.
 function lswt {
   git worktree list
 }
 
+# cdwtp - This will change your working directory to the directory where the
+# base repository was cloned.
 function cdwtp {
   YELLOW='\033[01;33m'
   NONE='\033[0m'
@@ -14,6 +36,9 @@ function cdwtp {
   fi
 }
 
+# cdwt - This will present a list of worktrees to choose from, allowing a section
+# then setting your working directory to the chosen worktree directory.  This is
+# keyed off of my '~/Worktrees' directory structure, so a bit hard coded.
 function cdwt {
   YELLOW='\033[01;33m'
   NONE='\033[0m'
@@ -33,6 +58,9 @@ function cdwt {
   fi
 }
 
+# mkwt - The structure I followed here is the JIRA number and "branch name".
+# These are both combined to create the actual branch name as 'JIRA-NNNN/{branch}'
+# and creates the worktree directory in '~/Worktrees/JIRA-NNNN/{repo name}/{branch}'
 function mkwt {
   JIRA=${1}
   BRANCH=${2}
@@ -49,6 +77,11 @@ function mkwt {
   fi
 }
 
+# mkwtfrom - This takes JIRA-NNNN, <new branch name>, <source branch> and as with
+# the mkwt function, creates a directory in '~/Worktrees' and sets up the new
+# branch to track the <source branch>
+#
+# This is used when your local named branch differs from the origin branch name
 function mkwtfrom {
   JIRA=${1}
   BRANCH=${2}
@@ -66,6 +99,8 @@ function mkwtfrom {
   fi
 }
 
+# mkwttrack - While similar to mkwtfrom, this function makes the assumption that
+# the new local branch you are creating has the same name as the origin.
 function mkwttrack {
   JIRA=${1}
   BRANCH=${2}
@@ -82,6 +117,9 @@ function mkwttrack {
   fi
 }
 
+# rmwt - The removal function.  This will list the worktrees, similar to cdwt,
+# and remove the worktree from your local git, then perform some cleanup in the
+# '~/Worktrees' directory.
 function rmwt {
   YELLOW='\033[01;33m'
   NONE='\033[0m'
@@ -118,3 +156,4 @@ function rmwt {
     echo -e "${YELLOW}Please change to the parent before removing the worktree${NONE}"
   fi
 }
+

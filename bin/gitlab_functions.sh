@@ -140,3 +140,55 @@ function gitlab-get-variable() {
 
 }
 
+function gitlab-update-group-variable() {
+
+  if [[ -z ${GITLAB_TOKEN} ]]; then
+    echo "MUST set the GITLAB_TOKEN variable to your personal access token"
+    false; return
+  fi
+
+  local variable_name=${1}
+  local group_path=${2}
+  local var_value=${3}
+  gp_encoded=$(echo ${group_path} | sed 's/\//%2F/g')
+
+  # curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+  #    "https://gitlab.example.com/api/v4/groups/1/variables/NEW_VARIABLE" --form "value=updated value"
+
+  local GROUP_ID=$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${gp_encoded}" | jq -r '.id')
+  if [[ "${GROUP_ID}" == 0 ]]; then
+    echo "ERROR: group not found"
+    false; return
+  fi
+  local VAR_DATA=$(curl -X PUT -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${GROUP_ID}/variables/${variable_name}" --form "value=${var_value}" | jq -r '.value')
+  printf '%s' "${VAR_DATA}"
+  true; return
+
+}
+
+function gitlab-update-project-variable() {
+
+  if [[ -z ${GITLAB_TOKEN} ]]; then
+    echo "MUST set the GITLAB_TOKEN variable to your personal access token"
+    false; return
+  fi
+
+  local variable_name=${1}
+  local project_path=${2}
+  local var_value=${3}
+  pp_encoded=$(echo ${project_path} | sed 's/\//%2F/g')
+
+  # curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+  #    "https://gitlab.example.com/api/v4/projects/1/variables/NEW_VARIABLE" --form "value=updated value"
+
+  local PROJECT_ID=$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${pp_encoded}" | jq -r '.id')
+  if [[ "${PROJECT_ID}" == 0 ]]; then
+    echo "ERROR: project not found"
+    false; return
+  fi
+  local VAR_DATA=$(curl -X PUT -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables/${variable_name}" --form "value=${var_value}" | jq -r '.value')
+  printf '%s' "${VAR_DATA}"
+  true; return
+
+}
+
