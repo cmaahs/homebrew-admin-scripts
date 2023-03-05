@@ -3,18 +3,19 @@ function switch-jira {
 local WHICH_JIRA=$1
 
 if [[ -z ${WHICH_JIRA} ]]; then
-  WHICH_JIRA=alteryx
+  WHICH_JIRA=$((cd ~/.jira.d && ls -1 *.yml | cut -d'-' -f1) | fzf)
 fi
 
 echo "Switching to ${WHICH_JIRA}"
-cp ~/.jira.d/${WHICH_JIRA}-config ~/.jira.d/config.yml
+export ALTERJIRA_CONFIG=${WHICH_JIRA}-config.yaml
+export GOJIRA_CONFIG=${WHICH_JIRA}
 
 case "${WHICH_JIRA}" in
     "dbaas")
       jira sprint
       ;;
     "alteryx")
-      jira sprint
+      jira mine
       ;;
     "pw")
       jira mine
