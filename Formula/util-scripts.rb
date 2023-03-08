@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.102"
+  version "0.0.103"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -32,6 +32,7 @@ class UtilScripts < Formula
     bin.install "bin/launch-splicectl-api.sh"
     bin.install "bin/ls-window-title"
     bin.install "bin/mk-window-title"
+    bin.install "bin/mk-jira-window-title"
     bin.install "bin/rm-window-title"
     bin.install "bin/k8s_list_environments.sh"
     bin.install "bin/log-path.sh"

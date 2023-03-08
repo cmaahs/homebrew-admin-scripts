@@ -1,0 +1,148 @@
+#!/usr/bin/env zsh
+
+BOARD=${1}
+JIRA_NUM=${2}
+
+WINDOW_TITLE="${1}-${2}"
+WINDOW_TITLE_12="${1}-${2}-12"
+GUID=$(uuidgen)
+GUID_12=$(uuidgen)
+LOG_WINDOWS=${2:-false}
+RUN_DMC=${3}
+
+function to-lower () {
+	echo "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+RUN_DMC="${RUN_DMC}; cd ~\/Work/${BOARD}-${JIRA_NUM}; export JIRA_ISSUE=${BOARD}-${JIRA_NUM}; switch-jira $(to-lower ${BOARD})"
+
+cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
+{
+  "Profiles": [
+    {
+      "Custom Window Title" : "${WINDOW_TITLE}",
+      "Name" : "${WINDOW_TITLE}",
+      "Use Custom Window Title" : true,
+      "Guid" : "${GUID}",
+      "Log Directory" : "\/Users\/christopher.maahs\/Work\/${WINDOW_TITLE}\/log\/",
+      "Automatically Log" : true,
+      "Triggers" : [
+        {
+          "regex" : "^Enter passphrase.*rsa:$",
+          "action" : "PasswordTrigger",
+          "parameter" : "_id_rsa_PassPhrase"
+        }
+      ],
+      "Smart Selection Rules" : [
+        {
+          "notes" : "CMD URL",
+          "precision" : "very_low",
+          "regex" : "<bash:(.*)>",
+          "actions" : [
+            {
+              "title" : "Run Command",
+              "action" : 4,
+              "parameter" : "\\\\1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+EOT
+
+cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <<EOT
+{
+  "Profiles": [
+    {
+      "Normal Font" : "RobotoMonoForPowerline-Light 12",
+      "Custom Window Title" : "${WINDOW_TITLE}",
+      "Name" : "${WINDOW_TITLE_12}",
+      "Use Custom Window Title" : true,
+      "Guid" : "${GUID_12}",
+      "Log Directory" : "\/Users\/christopher.maahs\/Work\/${WINDOW_TITLE}\/log\/",
+      "Automatically Log" : true,
+      "Smart Selection Rules" : [
+        {
+          "notes" : "CMD URL",
+          "precision" : "very_low",
+          "regex" : "<bash:(.*)>",
+          "actions" : [
+            {
+              "title" : "Run Command",
+              "action" : 4,
+              "parameter" : "\\\\1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+EOT
+
+ls -1 ~/Library/Application\ Support/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
+
+# Add itermp ${WINDOW_TITLE} - Tri Pane
+
+if [[ "${LOG_WINDOWS}" == "true" ]]; then
+cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
+{
+  "fullscreen": false,
+  "rows": 120,
+  "columns": 400,
+  "profile": "${WINDOW_TITLE}",
+  "command": "set-title-tab work",
+  "split": {
+    "type": "vertically",
+    "rows": 70,
+    "columns": 105,
+    "profile": "${WINDOW_TITLE_12}",
+    "command": "set-title-tab watcher",
+    "split": {
+      "type": "horizontally",
+      "rows": 40,
+      "columns": 105,
+      "profile": "${WINDOW_TITLE_12}",
+      "command": "set-title-tab processing"
+    }
+  }
+}
+EOT
+else
+cat > ~/.itermp/${WINDOW_TITLE}.json <<EOT
+{
+  "fullscreen": false,
+  "rows": 120,
+  "columns": 250,
+  "profile": "${WINDOW_TITLE}",
+  "command": "set-title-tab work"
+}
+EOT
+fi
+
+if [[ -n ${RUN_DMC} ]]; then
+    QUERY=".command = \"set-title-tab work; ${RUN_DMC}\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    if [[ "${LOG_WINDOWS}" == "true" ]]; then
+      QUERY=".split.command = \"set-title-tab watcher; ${RUN_DMC}\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+      QUERY=".split.split.command = \"set-title-tab processing; ${RUN_DMC}\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    fi
+else
+    QUERY=".command = \"set-title-tab work; cd ~/Work/${WINDOW_TITLE};\""
+    cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    if [[ "${LOG_WINDOWS}" == "true" ]]; then
+      QUERY=".split.command = \"set-title-tab watcher; cd ~/Work/${WINDOW_TITLE};\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+      QUERY=".split.split.command = \"set-title-tab processing; cd ~/Work/${WINDOW_TITLE};\""
+      cat <<< $(jq ${QUERY} ~/.itermp/${WINDOW_TITLE}.json) > ~/.itermp/${WINDOW_TITLE}.json
+    fi
+fi
+
+touch ~/.itermp/select/${WINDOW_TITLE}
+
+mkdir -p ~/Work/${WINDOW_TITLE}/log
+

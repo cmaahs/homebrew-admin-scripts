@@ -47,6 +47,9 @@ case "${WHICH_JIRA}" in
     "vv")
       jira mine
       ;;
+    *)
+      jira mine
+      ;;
   esac
 }
 
