@@ -14,7 +14,7 @@ function to-lower () {
 	echo "$1" | tr '[:upper:]' '[:lower:]'
 }
 
-RUN_DMC="${RUN_DMC}; cd ~\/Work/${BOARD}-${JIRA_NUM}; export JIRA_ISSUE=${BOARD}-${JIRA_NUM}; switch-jira $(to-lower ${BOARD})"
+RUN_DMC="${RUN_DMC}; cd ~\/Work/${BOARD}-${JIRA_NUM}; export JIRA_ISSUE=${BOARD}-${JIRA_NUM}"
 
 cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE} <<EOT
 {
@@ -81,6 +81,12 @@ cat > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12} <
   ]
 }
 EOT
+
+# add a startup to switch the jira config pointer
+
+QUERY=".Profiles[0].\"Initial Text\" += \"switch-jira $(to-lower ${BOARD})\""
+cat <<< $(jq ${QUERY} ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE}) > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE}
+cat <<< $(jq ${QUERY} ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}) > ~/Library/Application\ Support/iTerm2/DynamicProfiles/${WINDOW_TITLE_12}
 
 ls -1 ~/Library/Application\ Support/iTerm2/DynamicProfiles | grep ${WINDOW_TITLE}
 
