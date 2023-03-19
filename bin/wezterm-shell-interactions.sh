@@ -48,6 +48,10 @@ function newj() {
   BOARD=${1}
   board=$(to-lower ${BOARD})
   JIRA_NUM=${2}
+  if [[ -z ${BOARD} || -z ${JIRA_NUM} ]]; then
+    echo "Must specify 'BOARD JIRANUM' separately"
+    false; return
+  fi
   WINDOW_TITLE="${1}-${2}"
   # TODO: implement a extra_cmd json key with extra commands to run ';' separated
   RUN_DMC=${3}
