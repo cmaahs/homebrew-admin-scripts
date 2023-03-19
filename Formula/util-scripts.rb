@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.104"
+  version "0.0.105"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -67,6 +67,7 @@ class UtilScripts < Formula
     bin.install "bin/show-riverlevels"
     bin.install "bin/vim_multi_commands.sh"
     bin.install "bin/gitlab_functions.sh"
+    bin.install "bin/wezterm-shell-interactions.sh"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"
