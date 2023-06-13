@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# https://git.alteryx.com/futurama/farnsworth/tools/ktrouble/-/releases/v0.0.10/downloads/ktrouble_darwin_amd64.tar.gz
+# https://git.alteryx.com/futurama/farnsworth/tools/ktrouble/-/releases/v0.0.10/downloads/ktrouble_linux_arm64.tar.gz
+#
+
+if [[ -z ${GITLAB_TOKEN} ]]; then
+  echo "Please set GITLAB_TOKEN ENV variable to your personal access token for git.alteryx.com"
+  false; exit
+fi
+
+KTROUBLE=${1:-$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/8097/releases" | jq -r '.[0].name')}
+LIST_LIMIT=${2:-30}
+
+if [[ "${KTROUBLE}" == "--list" ]]; then
+  echo "VERSIONS"
+  curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/8097/releases" | jq -r '.[] | .name'
+  exit
+fi
+
+PLAIN_VER=${KTROUBLE:1}
+echo "Fetching ktrouble version: v ${PLAIN_VER}"
+
+# TODO: add a check for Arch
+TARGET_ARCH=amd64
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+  OS_GROUP=root
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+  OS_GROUP=admin
+fi
+
+if [ ! -d "/usr/local/ktrouble" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/ktrouble
+  chown ${MY_LOGON}:${OS_GROUP} /usr/local/ktrouble
+fi;
+if [ ! -d "/usr/local/ktrouble/${KTROUBLE}" ]; then
+  mkdir -p "/usr/local/ktrouble/${KTROUBLE}"
+
+  # download and extract
+  curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/8097/packages/generic/ktrouble/${PLAIN_VER}/ktrouble_${TARGET_OS}_${TARGET_ARCH}.tar.gz" -o "/usr/local/ktrouble/${KTROUBLE}/ktrouble_${TARGET_OS}_${TARGET_ARCH}.tar.gz"
+  tar -xzvf "/usr/local/ktrouble/${KTROUBLE}/ktrouble_${TARGET_OS}_${TARGET_ARCH}.tar.gz" -C "/usr/local/ktrouble/${KTROUBLE}/" --strip-components=1
+
+  if [ -f "/usr/local/ktrouble/${KTROUBLE}/ktrouble" ]; then
+    chmod 775 "/usr/local/ktrouble/${KTROUBLE}/ktrouble"
+  fi
+fi
+if [ -h "/usr/local/bin/ktrouble" ]; then
+  rm "/usr/local/bin/ktrouble"
+fi
+ln -s "/usr/local/ktrouble/${KTROUBLE}/ktrouble" "/usr/local/bin/ktrouble"
+
+ktrouble version
+

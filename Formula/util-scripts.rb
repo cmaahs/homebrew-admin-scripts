@@ -68,6 +68,10 @@ class UtilScripts < Formula
     bin.install "bin/vim_multi_commands.sh"
     bin.install "bin/gitlab_functions.sh"
     bin.install "bin/wezterm-shell-interactions.sh"
+    bin.install "bin/get-helmversion"
+    bin.install "bin/get-ktroubleversion"
+    bin.install "bin/get-kubectlversion"
+    bin.install "bin/get-teleportversion"
     if OS.mac?
       def install
         bin.install "bin/vault-token-to-clipboard"

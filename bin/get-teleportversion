@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+
+TELEPORT_RELEASE_DATA=$(curl -Ls https://goteleport.com/_next/data/G6_s5Q1x_yds6MDWFvCHK/download.json | jq .)
+TELEPORT=${1:-$(echo ${TELEPORT_RELEASE_DATA} | jq -r '.pageProps.initialDownloads[].versions[].version' | uniq | sort --version-sort --reverse | grep -v '\-' | fzf)}
+LIST_LIMIT=${2:-30}
+
+if [[ "${TELEPORT}" == "--list" ]]; then
+  echo "VERSIONS"
+  echo ${TELEPORT_RELEASE_DATA} | jq -r '.pageProps.initialDownloads[].versions[].version' | uniq | sort --version-sort --reverse | grep -v '\-' | head -n ${LIST_LIMIT}
+  exit
+fi
+
+MAJOR=$(echo ${TELEPORT} | cut -d '.' -f 1,2)
+echo "Fetching teleport version: Major ${MAJOR} .. v ${TELEPORT}"
+
+# TODO: add a check for Arch
+TARGET_ARCH=amd64
+
+# MacOS = 'darwin', Linux = 'linux', Windows = 'windows'
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  TARGET_OS=linux
+  OS_GROUP=root
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  TARGET_OS=darwin
+  OS_GROUP=admin
+fi
+
+if [ ! -d "/usr/local/teleport" ]; then
+  MY_LOGON=$(whoami)
+  echo ${MY_LOGON}
+  sudo mkdir -p /usr/local/teleport
+  sudo chown ${MY_LOGON}:${OS_GROUP} /usr/local/teleport
+fi;
+
+# ONLY download and extract if the version directory doesn't exist
+if [ ! -d "/usr/local/teleport/${TELEPORT}" ]; then
+  mkdir -p "/usr/local/teleport/${TELEPORT}"
+
+  # download and extract
+  DL_URL=$(echo ${TELEPORT_RELEASE_DATA} | jq -r ".pageProps.initialDownloads[] | select(.majorVersion==\"${MAJOR}\") | .versions[] | select(.version==\"${TELEPORT}\") | .assets[] | select(.name==\"teleport-v${TELEPORT}-${TARGET_OS}-${TARGET_ARCH}-bin.tar.gz\") | .publicUrl")
+  SHA=$(echo ${TELEPORT_RELEASE_DATA} | jq -r ".pageProps.initialDownloads[] | select(.majorVersion==\"${MAJOR}\") | .versions[] | select(.version==\"${TELEPORT}\") | .assets[] | select(.name==\"teleport-v${TELEPORT}-${TARGET_OS}-${TARGET_ARCH}-bin.tar.gz\") | .sha256")
+  echo "Downloading ${DL_URL}"
+  curl -Ls ${DL_URL} -o "/usr/local/teleport/${TELEPORT}/teleport_${TARGET_OS}_${TARGET_ARCH}.tar.gz"
+  tar -xzvf "/usr/local/teleport/${TELEPORT}/teleport_${TARGET_OS}_${TARGET_ARCH}.tar.gz" -C "/usr/local/teleport/${TELEPORT}/" --strip-components=1 teleport/tbot teleport/tctl teleport/teleport teleport/tsh
+  rm "/usr/local/teleport/${TELEPORT}/teleport_${TARGET_OS}_${TARGET_ARCH}.tar.gz"
+
+  if [ -f "/usr/local/teleport/${TELEPORT}/tbot" ]; then
+    chmod 775 "/usr/local/teleport/${TELEPORT}/tbot"
+  fi
+  if [ -f "/usr/local/teleport/${TELEPORT}/tctl" ]; then
+    chmod 775 "/usr/local/teleport/${TELEPORT}/tctl"
+  fi
+  if [ -f "/usr/local/teleport/${TELEPORT}/teleport" ]; then
+    chmod 775 "/usr/local/teleport/${TELEPORT}/teleport"
+  fi
+  if [ -f "/usr/local/teleport/${TELEPORT}/tsh" ]; then
+    chmod 775 "/usr/local/teleport/${TELEPORT}/tsh"
+  fi
+fi
+
+# symlink it all
+if [ -h "/usr/local/bin/tbot" ]; then
+  rm "/usr/local/bin/tbot"
+fi
+if [ -h "/usr/local/bin/tctl" ]; then
+  rm "/usr/local/bin/tctl"
+fi
+if [ -h "/usr/local/bin/teleport" ]; then
+  rm "/usr/local/bin/teleport"
+fi
+if [ -h "/usr/local/bin/tsh" ]; then
+  rm "/usr/local/bin/tsh"
+fi
+ln -s "/usr/local/teleport/${TELEPORT}/tbot" "/usr/local/bin/tbot"
+ln -s "/usr/local/teleport/${TELEPORT}/tctl" "/usr/local/bin/tctl"
+ln -s "/usr/local/teleport/${TELEPORT}/teleport" "/usr/local/bin/teleport"
+ln -s "/usr/local/teleport/${TELEPORT}/tsh" "/usr/local/bin/tsh"
+
+# verify versions
+tbot version
+tctl version
+teleport version
+tsh version
+
