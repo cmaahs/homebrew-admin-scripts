@@ -41,10 +41,14 @@ function gitlab-export-cicd-variables() {
     echo "Looking up path: ${group_path}"
     GROUP_ID=$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${group_path}" | jq -r '.id')
     if [[ "${GROUP_ID}" != "null" ]]; then
-      VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${GROUP_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
+      VAR_TMPFILE=$(mktemp -t group_variables_${GROUP_ID})
+      # VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${GROUP_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
+      curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/groups/${GROUP_ID}/variables?per_page=100" > ${VAR_TMPFILE}
+      VARIABLES=($(cat ${VAR_TMPFILE} | jq -r '.[] | select(.variable_type=="env_var").key'))
       if [[ -n ${VARIABLES} ]]; then
         for v in ${VARIABLES}; do
-          VAR_DATA=$(gitlab-get-group-variable ${v} ${group_path})
+          # VAR_DATA=$(gitlab-get-group-variable ${v} ${group_path})
+          VAR_DATA=$(cat ${VAR_TMPFILE} | jq -r ".[] | select(.key==\"${v}\") | .value")
           if [[ -n ${VAR_DATA} ]]; then
             if [[ ${export_vars} == true ]]; then
               echo "Exporting ${v}"
@@ -55,13 +59,17 @@ function gitlab-export-cicd-variables() {
           fi
         done
       fi
+      rm ${VAR_TMPFILE}
     else
       local PROJECT_ID=$(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${group_path}" | jq -r '.id')
       if [[ "${PROJECT_ID}" != "null" ]]; then
-        VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
+        VAR_TMPFILE=$(mktemp -t project_variables_${PROJECT_ID})
+        # VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
+        VARIABLES=($(cat ${VAR_TMPFILE} | jq -r '.[] | select(.variable_type=="env_var").key'))
         if [[ -n ${VARIABLES} ]]; then
           for v in ${VARIABLES}; do
-            VAR_DATA=$(gitlab-get-project-variable ${v} ${group_path})
+            # VAR_DATA=$(gitlab-get-project-variable ${v} ${group_path})
+            VAR_DATA=$(cat ${VAR_TMPFILE} | jq -r ".[] | select(.key==\"${v}\") | .value")
             if [[ -n ${VAR_DATA} ]]; then
               if [[ ${export_vars} == true ]]; then
                 echo "Exporting ${v}"
@@ -72,6 +80,7 @@ function gitlab-export-cicd-variables() {
             fi
           done
         fi
+        rm ${VAR_TMPFILE}
       fi
     fi
   done
