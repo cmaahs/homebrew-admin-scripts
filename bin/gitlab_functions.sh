@@ -65,6 +65,7 @@ function gitlab-export-cicd-variables() {
       if [[ "${PROJECT_ID}" != "null" ]]; then
         VAR_TMPFILE=$(mktemp -t project_variables_${PROJECT_ID})
         # VARIABLES=($(curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables?per_page=100" | jq -r '.[] | select(.variable_type=="env_var").key'))
+        curl -Ls --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://git.alteryx.com/api/v4/projects/${PROJECT_ID}/variables?per_page=100" > ${VAR_TMPFILE}
         VARIABLES=($(cat ${VAR_TMPFILE} | jq -r '.[] | select(.variable_type=="env_var").key'))
         if [[ -n ${VARIABLES} ]]; then
           for v in ${VARIABLES}; do
