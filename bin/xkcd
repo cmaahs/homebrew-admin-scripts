@@ -4,6 +4,22 @@ STRIP=${1:-LATEST}
 
 declare -a LINKS
 
+HAVE_TOOLS="true"
+HAVE_MDCAT=$(which mdcat)
+if [[ -z ${HAVE_MDCAT} ]]; then
+  echo 'mdcat is missing, please install with:'
+  echo 'brew install mdcat or apt-get install mdcat'
+  echo
+  HAVE_TOOLS="false"
+fi
+if [[ "${HAVE_TOOLS}" == "false" ]]; then
+  false; exit
+fi
+
+if [[ ! -f ~/.xkcd ]]; then
+  echo "1" > ~/.xkcd
+fi
+
 CURRENT_NUM=$(cat ~/.xkcd)
 TITLE=$(curl -s "https://xkcd.com/" | grep 'img src.*title=' | cut -d'"' -f4)
 DETAIL=$(curl -s "https://xkcd.com/" | grep -A2 'Permanent link')
@@ -14,9 +30,10 @@ NUM=$(echo ${LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
 
 if [[ "${STRIP}" == "LATEST" ]]; then
   if [[ "${CURRENT_NUM}" != "${NUM}" ]]; then
+    CURRENT_NUM=$((CURRENT_NUM+1))
     WEBLINK=$(echo ${LINKS[14]} | cut -d'"' -f2)
-    echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${WEBLINK})" | mdcat
-    echo ${NUM} > ~/.xkcd
+    echo -e "# xkcd ${CURRENT_NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+    echo ${CURRENT_NUM} > ~/.xkcd
   fi
 fi
 
@@ -30,6 +47,17 @@ if [[ "${STRIP}" == "random" ]]; then
   done
   NUM=$(echo ${RND_LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
   WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
-  echo -e "# xkcd ${NUM}\n${TITLE}\n![Strip](${WEBLINK})" | mdcat
+  echo -e "# xkcd ${NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
 fi
 
+if [[ "${STRIP}" == "sudo" ]]; then
+  RND=149
+  TITLE=$(curl -s "https://xkcd.com/${RND}/" | grep 'img src.*title=' | cut -d'"' -f4)
+  DETAIL=$(curl -s "https://xkcd.com/${RND}/" | grep -A2 'Permanent link')
+  for i in ${DETAIL}; do
+    RND_LINKS+=("${i}")
+  done
+  NUM=$(echo ${RND_LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
+  WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
+  echo -e "# xkcd ${NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+fi

@@ -2,7 +2,7 @@ class UtilScripts < Formula
   desc "This is a collection of general utility scripts"
   homepage "https://github.com/cmaahs/homebrew-admin-scripts"
   url "https://github.com/cmaahs/homebrew-admin-scripts.git"
-  version "0.0.114"
+  version "0.0.115"
 
   def install
     bin.install "bin/check-docker-tag"
@@ -43,7 +43,6 @@ class UtilScripts < Formula
     bin.install "bin/prstat"
     bin.install "bin/sqlshell_functions.sh"
     bin.install "bin/vault_functions.sh"
-    bin.install "bin/xkcd"
     bin.install "bin/new-bash-script"
     bin.install "bin/get-gke-versions"
     bin.install "bin/get-jsonui"
@@ -61,7 +60,6 @@ class UtilScripts < Formula
     bin.install "bin/git-fetch-status-pull"
     bin.install "bin/gcp_functions.sh"
     bin.install "bin/gcp-switch-account"
-    bin.install "bin/decolorize"
     bin.install "bin/get-riverlevels"
     bin.install "bin/river-prompt"
     bin.install "bin/show-riverlevels"
