@@ -49,7 +49,7 @@ function newj() {
   board=$(to-lower ${BOARD})
   JIRA_NUM=${2}
   if [[ -z ${BOARD} || -z ${JIRA_NUM} ]]; then
-    echo "Must specify 'BOARD JIRANUM' separately"
+    echo "Must specify 'BOARD JIRA_NUM' separately"
     false; return
   fi
   WINDOW_TITLE="${1}-${2}"
@@ -58,6 +58,9 @@ function newj() {
   RUN_DMC="${RUN_DMC}; cd ~\/Work/${BOARD}-${JIRA_NUM}; export JIRA_ISSUE=${BOARD}-${JIRA_NUM}; switch-jira ${board}"
   touch ~/.itermp/select/${WINDOW_TITLE}
   mkdir -p ~/Work/${WINDOW_TITLE}/{log,tabs}
+  if [[ "${BOARD}" == "TCIA" ]]; then
+    daily-notes add comment --comment "Worked on" --link "[${BOARD}-${JIRA_NUM}](https://alteryx.atlassian.net/browse/TCIA-${JIRA_NUM})"
+  fi
   jcwd="${HOME}/Work/${WINDOW_TITLE}"
   jcmd=$(jq -c -n --arg title "${WINDOW_TITLE}" --arg board "${board}" --arg cwd ${jcwd} '{"cmd":"open-window","title":$title,"jira":$title,"cwd":$cwd,"board":$board}' | base64)
   printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands ${jcmd}

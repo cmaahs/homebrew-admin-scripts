@@ -70,8 +70,21 @@ function mkwt {
   YELLOW='\033[01;33m'
   NONE='\033[0m'
   REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
+  REPO_URL=$(git config --get remote.origin.url)
+  # check to see if REPO_URL is an https:// or a git@ url
+  if [[ "${REPO_URL}" == "https://"* ]]; then
+    LINKABLE_URL=$(echo ${REPO_URL} | sed 's/\.git//')
+    BRANCH_URL="${LINKABLE_URL}/~/tree/${BRANCH}"
+  elif [[ "${REPO_URL}" == "git@"* ]]; then
+    LINKABLE_URL=$(echo ${REPO_URL} | sed 's/:/\//' | sed 's/git@/https:\/\//' | sed 's/\.git//')
+    BRANCH_URL="${LINKABLE_URL}/~/tree/${BRANCH}"
+  else
+    BRANCH_URL=${REPO_URL}
+  fi
+  echo "Branch Link: ${BRANCH_URL}"
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
     git worktree add -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2}
+    daily-notes add comment --comment "Created Branch" --link "[${JIRA}/${BRANCH}](${BRANCH_URL})"
   else
     echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
   fi
@@ -112,6 +125,27 @@ function mkwttrack {
   REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
     git worktree add --guess-remote -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2}
+  else
+    echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
+  fi
+}
+
+# mkwtbranch - This takes JIRA-NNNN, <source branch> and as with
+# the mkwt function, creates a directory in '~/Worktrees' and sets up the new
+# branch, with the same name as <source branch> to track the <source branch>
+#
+# This is used when you want your local and remote branchname to match
+function mkwtbranch {
+  JIRA=${1}
+  SOURCE_BRANCH=${2}
+  if [[ -z ${JIRA} || -z ${SOURCE_BRANCH} ]]; then
+    echo -e "${YELLOW}Need JIRA (TSAASPD-nnnn) and SOURCE_BRANCH (commit from)${NONE}"; exit 1
+  fi
+  YELLOW='\033[01;33m'
+  NONE='\033[0m'
+  REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
+  if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
+    git worktree add -b ${2} ~/Worktrees/${JIRA}/${REPONAME}/${2} ${SOURCE_BRANCH}
   else
     echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
   fi
