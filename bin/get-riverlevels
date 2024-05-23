@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-curl -Ls "https://maps1.dnr.state.mn.us/cgi-bin/mapserv76?map=RL_MAPFILE&mode=nquery" > ~/tmp/riverlevels.js
+curl -Ls "https://maps.dnr.state.mn.us/cgi-bin/mapserv?map=RL_MAPFILE&mode=nquery" > ~/tmp/riverlevels.js
 
 cat >> ~/tmp/riverlevels.js <<EOT
 var x = JSON.stringify(riverLevelSites);
