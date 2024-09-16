@@ -20,6 +20,11 @@ function save-wez-session() {
 function save-wez-sessions() {
   CLOSE_TABS=${1-false}
   BASE_DIR="${HOME}/Work/"
+  if [[ -z ${JIRA_ISSUE} ]]; then
+    daily-notes add comment -m "closing a wezterm window"
+  else
+    daily-notes add comment -m "closing ${JIRA_ISSUE} wezterm window"
+  fi
   jcmd=$(jq -c -n --arg close "${CLOSE_TABS}" --arg workdir "${BASE_DIR}" '{"cmd":"save-sessions","workdir":$workdir,"close":$close}' | base64)
   printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands ${jcmd}
 }
