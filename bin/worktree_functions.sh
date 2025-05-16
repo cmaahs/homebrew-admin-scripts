@@ -85,6 +85,9 @@ function mkwt {
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
     git worktree add -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2}
     daily-notes add comment --comment "Created Branch" --link "[${JIRA}/${BRANCH}](${BRANCH_URL})"
+    cd ${HOME}/Worktrees/${JIRA}/${REPONAME}/${2}
+    export BRANCH=$(git branch --show-current)
+    export JIRA_ISSUE=$(echo ${BRANCH} | cut -d'/' -f1)
   else
     echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
   fi
@@ -107,6 +110,9 @@ function mkwtfrom {
   REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
     git worktree add -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2} ${SOURCE_BRANCH}
+    cd ${HOME}/Worktrees/${JIRA}/${REPONAME}/${2}
+    export BRANCH=$(git branch --show-current)
+    export JIRA_ISSUE=$(echo ${BRANCH} | cut -d'/' -f1)
   else
     echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
   fi
@@ -125,6 +131,9 @@ function mkwttrack {
   REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
     git worktree add --guess-remote -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2}
+    cd ${HOME}/Worktrees/${JIRA}/${REPONAME}/${2}
+    export BRANCH=$(git branch --show-current)
+    export JIRA_ISSUE=$(echo ${BRANCH} | cut -d'/' -f1)
   else
     echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
   fi
@@ -146,6 +155,9 @@ function mkwtbranch {
   REPONAME=$(basename $(git config --get remote.origin.url) | sed 's/\.git//')
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
     git worktree add -b ${2} ~/Worktrees/${JIRA}/${REPONAME}/${2} ${SOURCE_BRANCH}
+    cd ${HOME}/Worktrees/${JIRA}/${REPONAME}/${2}
+    export BRANCH=$(git branch --show-current)
+    export JIRA_ISSUE=$(echo ${BRANCH} | cut -d'/' -f1)
   else
     echo -e "${YELLOW}The worktree directory already exists, aborting${NONE}"
   fi
