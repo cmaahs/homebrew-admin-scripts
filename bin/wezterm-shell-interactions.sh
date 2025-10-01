@@ -132,3 +132,36 @@ function set-tab-title-pwd () {
   set-terminal-title 1 ${TITLE}
 }
 
+function active-commands () {
+  if [[ "${TERM_PROGRAM}" == "WezTerm" ]]; then
+    jcmd=$(jq -c -n '{"cmd":"list-active-commands"}' | base64)
+    printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands "${jcmd}"
+    sleep 1
+    cat ~/tmp/active_commands.log | column -t -s $'\t'
+  fi
+}
+
+function jump-to-window-tab () {
+  local window_id=""
+  local tab_id=""
+  while [[ $# -gt 0 ]]
+  do
+    case "$1" in
+      (--window-id) window_id="$2"
+        shift 2 ;;
+      (--tab-id) tab_id="$2"
+        shift 2 ;;
+      (*) echo "Unknown option: $1"
+        return 1 ;;
+    esac
+  done
+  if [[ -z "$window_id" || -z "$tab_id" ]]; then
+    echo "Usage: jump-to-window-tab --window-id <id> --tab-id <id>"
+    return 1
+  fi
+  if [[ "${TERM_PROGRAM}" == "WezTerm" ]]; then
+    jcmd=$(jq -c -n --arg w "$window_id" --arg t "$tab_id" '{"cmd":"jump-to-window-tab","window_id":($w|tonumber),"tab_id":($t|tonumber)}' | base64)
+    printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands "$jcmd"
+  fi
+}
+
