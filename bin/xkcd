@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 STRIP=${1:-LATEST}
+THIS_NUM=${2}
 
 declare -a LINKS
 
@@ -31,8 +32,18 @@ NUM=$(echo ${LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
 if [[ "${STRIP}" == "LATEST" ]]; then
   if [[ "${CURRENT_NUM}" != "${NUM}" ]]; then
     CURRENT_NUM=$((CURRENT_NUM+1))
-    WEBLINK=$(echo ${LINKS[14]} | cut -d'"' -f2)
-    echo -e "# xkcd ${CURRENT_NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+    # WEBLINK=$(echo ${LINKS[14]} | cut -d'"' -f2)
+    # echo -e "# xkcd ${CURRENT_NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+    # echo ${CURRENT_NUM} > ~/.xkcd
+    TITLE=$(curl -s "https://xkcd.com/${CURRENT_NUM}/" | grep 'img src.*title=' | cut -d'"' -f4)
+    DETAIL=$(curl -s "https://xkcd.com/${CURRENT_NUM}/" | grep -A2 'Permanent link')
+    for i in ${DETAIL}; do
+      RND_LINKS+=("${i}")
+    done
+    NUM=$(echo ${RND_LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
+    WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
+    echo -e "# xkcd ${NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+    echo "URL: ${WEBLINK}"
     echo ${CURRENT_NUM} > ~/.xkcd
   fi
 fi
@@ -61,3 +72,28 @@ if [[ "${STRIP}" == "sudo" ]]; then
   WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
   echo -e "# xkcd ${NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
 fi
+
+if [[ "${STRIP}" == "bobby" ]]; then
+  RND=327
+  TITLE=$(curl -s "https://xkcd.com/${RND}/" | grep 'img src.*title=' | cut -d'"' -f4)
+  DETAIL=$(curl -s "https://xkcd.com/${RND}/" | grep -A2 'Permanent link')
+  for i in ${DETAIL}; do
+    RND_LINKS+=("${i}")
+  done
+  NUM=$(echo ${RND_LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
+  WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
+  echo -e "# xkcd ${NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+fi
+
+if [[ "${STRIP}" == "num" ]]; then
+  RND=${THIS_NUM}
+  TITLE=$(curl -s "https://xkcd.com/${RND}/" | grep 'img src.*title=' | cut -d'"' -f4)
+  DETAIL=$(curl -s "https://xkcd.com/${RND}/" | grep -A2 'Permanent link')
+  for i in ${DETAIL}; do
+    RND_LINKS+=("${i}")
+  done
+  NUM=$(echo ${RND_LINKS[6]} | cut -d'/' -f4 | sed 's/".*//')
+  WEBLINK=$(echo ${RND_LINKS[14]} | cut -d'"' -f2)
+  echo -e "# xkcd ${NUM}\n${TITLE}\n\n![Strip](${WEBLINK})" | mdcat
+fi
+

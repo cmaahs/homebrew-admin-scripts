@@ -62,8 +62,10 @@ function cdwt {
 # These are both combined to create the actual branch name as 'JIRA-NNNN/{branch}'
 # and creates the worktree directory in '~/Worktrees/JIRA-NNNN/{repo name}/{branch}'
 function mkwt {
+  random_sha=$(head -c 10 /dev/urandom | shasum | cut -d ' ' -f1)
+  random_sha=${random_sha:34:6}
   JIRA=${1}
-  BRANCH=${2}
+  BRANCH="${2}-${random_sha}"
   if [[ -z ${JIRA} || -z ${BRANCH} ]]; then
     echo -e "${YELLOW}Need JIRA (DBAAS-nnnn) and BRANCH (short name)${NONE}"; exit 1
   fi
