@@ -85,9 +85,9 @@ function mkwt {
   fi
   echo "Branch Link: ${BRANCH_URL}"
   if [[ ! -d ~/Worktrees/${JIRA}/${REPONAME}/${2} ]]; then
-    git worktree add -b ${1}/${2} ~/Worktrees/${JIRA}/${REPONAME}/${2}
+    git worktree add -b ${1}/${BRANCH} ~/Worktrees/${JIRA}/${REPONAME}/${BRANCH}
     daily-notes add comment --comment "Created Branch" --link "[${JIRA}/${BRANCH}](${BRANCH_URL})"
-    cd ${HOME}/Worktrees/${JIRA}/${REPONAME}/${2}
+    cd ${HOME}/Worktrees/${JIRA}/${REPONAME}/${BRANCH}
     export BRANCH=$(git branch --show-current)
     export JIRA_ISSUE=$(echo ${BRANCH} | cut -d'/' -f1)
   else
