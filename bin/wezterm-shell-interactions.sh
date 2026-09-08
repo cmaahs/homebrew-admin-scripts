@@ -15,6 +15,15 @@ function save-wez-session() {
   printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands ${jcmd}
 }
 
+# save-wez-all-sessions will create one restore-session-${TODAY}.sh named file
+# in each ~/Work/${WINDOWS_TITLE}/ directory for every open top-level window.
+function save-wez-all-sessions() {
+  CLOSE_TABS=${1-false}
+  BASE_DIR="${HOME}/Work/"
+  jcmd=$(jq -c -n --arg close "${CLOSE_TABS}" --arg workdir "${BASE_DIR}" '{"cmd":"save-all-sessions","workdir":$workdir,"close":$close}' | base64)
+  printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands ${jcmd}
+}
+
 # save-wez-sessions will create a restore-session-${TODAY}.sh named file in the
 # ~/Work/${WINDOWS_TITLE}/ directory
 function save-wez-sessions() {
@@ -164,4 +173,3 @@ function jump-to-window-tab () {
     printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands "$jcmd"
   fi
 }
-
