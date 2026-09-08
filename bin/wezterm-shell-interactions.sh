@@ -20,6 +20,7 @@ function save-wez-session() {
 function save-wez-all-sessions() {
   CLOSE_TABS=${1-false}
   BASE_DIR="${HOME}/Work/"
+  daily-notes add comment -m "auto-saving all wezterm sessions"
   jcmd=$(jq -c -n --arg close "${CLOSE_TABS}" --arg workdir "${BASE_DIR}" '{"cmd":"save-all-sessions","workdir":$workdir,"close":$close}' | base64)
   printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands ${jcmd}
 }
@@ -173,3 +174,4 @@ function jump-to-window-tab () {
     printf "\033]1337;SetUserVar=%s=%s\007" shell-interactive-commands "$jcmd"
   fi
 }
+
